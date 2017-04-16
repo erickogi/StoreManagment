@@ -147,7 +147,7 @@ public class login1 extends javax.swing.JFrame {
         strp=txtPassword.getText();
         if(stru.equals("oop")&&strp.equals("oop"))
         {
-           open("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+           open("ABCDEFGHIJKLMNOPQRSTUVWXYZ","singularity");
         }
         else{
         if (stru.isEmpty()==true)
@@ -186,7 +186,7 @@ public class login1 extends javax.swing.JFrame {
            if (rs.next())
            {
                String hash=rs.getString("hash");
-               open(hash);
+               open(hash,stru);
 
            }
            else
@@ -335,22 +335,18 @@ pst.close();
     
     
     
-    private void open(String hash){
+    private void open(String hash,String userName){
         
       
-           // Main n=new Main();
-           Main.hash=hash;
-           
-          Main.a=1;
+ 
+          Main.hash=hash;
+          Main.loggedInName=userName;
+          Main.logged=1;
           Main.ch=1;
-         // Main.checkTodays();
-            this.dispose();
-            
-            // n.checkTodays();
-         // this.setVisible(false);
-        
          
-       
+          this.dispose();
+            
+
         
     }
     

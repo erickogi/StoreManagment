@@ -21,6 +21,8 @@ import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.border.Border;
+import storemanagment.Give.GiveForm;
+import storemanagment.Recieve.RecieveForm;
 import storemanagment.Transactions.TransactionsForm;
 
 /**
@@ -28,12 +30,16 @@ import storemanagment.Transactions.TransactionsForm;
  * @author kimani kogi
  */
 public final class Main extends javax.swing.JFrame {
+    
+    
     //login set
+    public static String loggedInName;
     public static String hash="";
-   public static int on;
-  public static  int a=0;
-  public static int  ch=0;
+    public static int on;
+    public static  int logged=0;
+    public static int  ch=0;
   //end login set
+    
     /**
      * Creates new form Main
      */
@@ -42,7 +48,7 @@ public final class Main extends javax.swing.JFrame {
         setTilteImage();
         pic();
         getTime();
-       if(a==0){
+       if(logged==0){
          login();
        }
     }
@@ -163,9 +169,9 @@ Calendar cal=new GregorianCalendar();
          txttymer.setBorder(BorderFactory.createCompoundBorder(pb, pb));
          
         txttymer.setText("DATE:   "+day+" "+z+" "+year+"   TIME:  "+hour+":"+min+":"+second+":"+x);
-        if(a>0){
+        if(logged>0){
             setEnabled();
-            a=0;
+            logged=0;
         }
          if(ch==1){
           
@@ -214,6 +220,22 @@ clock.start();
         }
         return c;
 }
+     void setNewFrameTransaction(String classTo){
+         
+         TransactionsForm transactionsForm=new TransactionsForm(classTo);
+        transactionsForm.setVisible(true);
+     }
+    void setNewFrameRecieve(String classTo) {
+
+        RecieveForm recieveForm = new RecieveForm(classTo);
+        recieveForm.setVisible(true);
+    }
+
+    void setNewFrameGive(String classTo) {
+
+        GiveForm giveForm = new GiveForm(classTo);
+        giveForm.setVisible(true);
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -358,29 +380,24 @@ clock.start();
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        TransactionsForm transactionsForm=new TransactionsForm();
-        transactionsForm.setVisible(true);
-        
+      //  storeDefiner=new StoreDefiner("Central Store",101);
+        setNewFrameTransaction("Central Store");    
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        TransactionsForm transactionsForm=new TransactionsForm();
-        transactionsForm.setVisible(true);
+        setNewFrameTransaction("Stationery Store");   
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        TransactionsForm transactionsForm=new TransactionsForm();
-        transactionsForm.setVisible(true);
+        setNewFrameTransaction("Kitchen Store");    
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        TransactionsForm transactionsForm=new TransactionsForm();
-        transactionsForm.setVisible(true);        // TODO add your handling code here:
+        setNewFrameTransaction("Hardware Store");
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        TransactionsForm transactionsForm=new TransactionsForm();
-        transactionsForm.setVisible(true);        // TODO add your handling code here:
+        setNewFrameTransaction("Farm Store");
     }//GEN-LAST:event_jButton5ActionPerformed
 
     /**

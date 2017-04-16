@@ -5,8 +5,24 @@
  */
 package storemanagment.Recieve;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.ButtonGroup;
+import javax.swing.JOptionPane;
 import storemanagment.Give.GiveForm;
+import storemanagment.ItemsPojo;
+import storemanagment.Keys;
+import storemanagment.Methods;
 import storemanagment.Transactions.TransactionsForm;
+import storemanagment.TransactionsPojo;
 
 /**
  *
@@ -14,13 +30,248 @@ import storemanagment.Transactions.TransactionsForm;
  */
 public class RecieveForm extends javax.swing.JFrame {
 
+    TransactionsPojo transactionsPojo;
+    ItemsPojo itemPojo;
+    Methods methods = new Methods();
+
+    ButtonGroup radiog = new ButtonGroup();
+    boolean newItem = false;
+    //jRadioButton_existing_item;
+    //jRadioButton_new_item;
+
+    //table;
+//     txt_item_add;
+//     txt_item_cash;
+//     txt_item_from;
+//     txt_item_id;
+//     txt_item_name;
+//     txt_item_quantity;
+//     txt_item_receipt_no;
+//     txt_quantity_in;
+//     txt_table_search;
     /**
      * Creates new form RecieveForm
      */
-    public RecieveForm() {
+    private String storeType;
+
+    public RecieveForm(String storeType) {
+        this.storeType = storeType;
         initComponents();
+        this.setTitle(storeType + " -Recieve Form");
+        radiog.add(jRadioButton_existing_item);
+        radiog.add(jRadioButton_new_item);
+        jRadioButton_existing_item.setSelected(true);
+
+        jRadioButton_existing_item.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                txt_item_name.setEditable(false);
+                txt_item_quantity.setEditable(false);
+                txt_quantity_in.setEditable(false);
+                txt_item_add.setEditable(true);
+                newItem = false;
+
+            }
+        });
+        jRadioButton_new_item.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                txt_item_name.setEditable(true);
+                txt_item_quantity.setEditable(true);
+                txt_quantity_in.setEditable(true);
+                txt_item_add.setEditable(false);
+                txt_item_id.setText("");
+                newItem = true;
+
+            }
+        });
     }
 
+    public RecieveForm() {
+        initComponents();
+
+        radiog.add(jRadioButton_existing_item);
+        radiog.add(jRadioButton_new_item);
+        jRadioButton_existing_item.setSelected(true);
+
+        jRadioButton_existing_item.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                txt_item_name.setEditable(false);
+                txt_item_quantity.setEditable(false);
+                txt_quantity_in.setEditable(false);
+                newItem = false;
+
+            }
+        });
+        jRadioButton_new_item.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                txt_item_name.setEditable(true);
+                txt_item_quantity.setEditable(true);
+                txt_quantity_in.setEditable(true);
+                txt_item_id.setText("");
+                newItem = true;
+
+            }
+        });
+    }
+
+    boolean checkEmpty() {
+        boolean okay = false;
+        if (newItem) {
+            if (txt_item_name.getText().isEmpty()
+                    || txt_item_quantity.getText().isEmpty() || txt_quantity_in.getText().isEmpty()
+                    || txt_item_cash.getText().isEmpty() 
+                    || txt_item_receipt_no.getText().isEmpty() || txt_item_from.getText().isEmpty()) {
+
+                JOptionPane.showMessageDialog(null, "Fill All Details");
+
+            } else {
+                okay = true;
+            }
+        } else if (txt_item_name.getText().isEmpty() || txt_item_id.getText().isEmpty()
+                || txt_item_quantity.getText().isEmpty() || txt_quantity_in.getText().isEmpty()
+                || txt_item_cash.getText().isEmpty() || txt_item_add.getText().isEmpty()
+                || txt_item_receipt_no.getText().isEmpty() || txt_item_from.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Fill All Details");
+        } else {
+            okay = true;
+        }
+        return okay;
+    }
+
+    void insertNewItem(String officer_in_charge) {
+
+        String query = "INSERT INTO items_table(" + Keys.KEY_ITEM_NAME + ", " + Keys.KEY_ITEM_TYPE + "," + Keys.KEY_ITEM_QUANTITY + ","
+                + "" + Keys.KEY_ITEM_QUANTITY_IN + "," + Keys.KEY_ITEM_UPDATED_AT + ")"
+                + " VALUES ('" + this.txt_item_name.getText() + "','" + this.storeType + "','" + this.txt_item_quantity.getText() + "',"
+                + "'" + this.txt_quantity_in.getText() + "',now())";
+                
+
+        if(methods.executeSQlQueryN(query)==1){
+            
+            setTransaction(officer_in_charge,txt_item_quantity.getText(),getItemIdByName(this.txt_item_name.getText()));
+        }
+        else{
+            
+        }
+
+    }
+    void setTransaction(String officer_in_charge,String quantity,int item_id){
+        
+                String nullValue="--";
+                String randomReceiptNo="rcpt";
+                String query = "INSERT INTO transactions_table(" + Keys.KEY_ITEM_ID + "," + Keys.KEY_ITEM_NAME + ", " + Keys.KEY_ITEM_TYPE + ","
+                        + "" + Keys.KEY_TRANSACTION_QUANTITY + ","
+                        
+                        + "" + Keys.KEY_TRANSACTION_QUANTITY_IN + "," + Keys.KEY_TRANSACTION_TO + "," + Keys.KEY_TRANSACTION_FROM + ","
+                        
+                        + "" + Keys.KEY_TRANSACTION_CASH + "," + Keys.KEY_TRANSACTION_RECEIPT_RECIEVED + "," + Keys.KEY_TRANSACTION_RECEIPT_GIVEN + ","
+                        
+                        + "" + Keys.KEY_TRANSACTION_OFFICER_INCHARGE + "," + Keys.KEY_TRANSACTION_TIME + ")"
+                        
+                + " VALUES ('" + item_id+ "','" + this.txt_item_name.getText() + "','" + this.storeType + "',"
+                        + "'" + quantity + "',"
+                        + "'" + this.txt_quantity_in.getText() + "',"
+                        + "'" + nullValue+ "',"
+                        + "'" + this.txt_item_from.getText() + "',"
+                        + "'" + this.txt_item_cash.getText() + "',"
+                        + "'" + this.txt_item_receipt_no.getText() + "',"
+                        + "'" + nullValue + "',"
+                        + "'" + officer_in_charge + "',now())";
+                
+                
+                
+                
+                       
+        if(methods.executeSQlQueryN(query)==1){
+            
+        }
+    }
+    void updateExistingItem(String officer_in_charge) {
+
+    }
+    boolean checkReceiptNo(String No){
+        boolean isNewNo=false;
+        try {
+            String stru=No;
+            
+            Connection con = methods.getConnection();
+            String str="";
+            
+            str="select * from transactions_reciepts where  receipt_no =?";
+            
+            PreparedStatement pst=con.prepareStatement(str);
+            
+            pst.setString(1, stru);
+            
+            ResultSet rs;
+            
+            rs=pst.executeQuery();
+            
+            if (rs.next())
+                
+            {
+                
+                isNewNo=false;
+                ran();
+                
+            }
+            else{
+                isNewNo=true;
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(RecieveForm.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return isNewNo;
+    }
+   
+    public String  ran(){
+           String results=null;
+           Random rand= new Random();
+           int nr = rand.nextInt(50000)+1;
+           String rNo=  String.valueOf(nr);
+           
+           
+           while (checkReceiptNo(String.valueOf(nr))==true){
+              results=rNo; 
+               
+           }
+                   
+                   
+         
+          return results; 
+          
+}
+    public int getItemIdByName(String itemName){
+                int userName=0;
+        try {
+
+            Connection con = methods.getConnection();
+            // Connection con = getConnection();
+            Statement st = con.createStatement();
+            String searchQuery = "SELECT item_id FROM `items_table` WHERE `item_name`='"+itemName+"' ";
+            ResultSet rs = st.executeQuery(searchQuery);
+            while (rs.next()) {
+
+                userName=rs.getInt("item_id");
+
+                
+            }
+            st.close();
+            rs.close();
+            con.close();
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+        return userName;  
+    
+    }
+    public void registerReceiptNo(){
+        
+        
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -33,29 +284,29 @@ public class RecieveForm extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
-        jTextField3 = new javax.swing.JTextField();
+        txt_item_name = new javax.swing.JTextField();
+        txt_item_id = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        jTextField4 = new javax.swing.JTextField();
-        jTextField5 = new javax.swing.JTextField();
+        txt_item_quantity = new javax.swing.JTextField();
+        txt_quantity_in = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
-        jCheckBox1 = new javax.swing.JCheckBox();
-        jTextField6 = new javax.swing.JTextField();
+        txt_item_add = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
-        jTextField7 = new javax.swing.JTextField();
+        txt_item_from = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
-        jTextField8 = new javax.swing.JTextField();
+        txt_item_cash = new javax.swing.JTextField();
         jLabel9 = new javax.swing.JLabel();
-        jTextField9 = new javax.swing.JTextField();
-        jLabel10 = new javax.swing.JLabel();
+        txt_item_receipt_no = new javax.swing.JTextField();
+        jRadioButton_new_item = new javax.swing.JRadioButton();
+        jRadioButton_existing_item = new javax.swing.JRadioButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        table = new javax.swing.JTable();
         jPanel3 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
-        jTextField1 = new javax.swing.JTextField();
+        txt_table_search = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
@@ -72,9 +323,9 @@ public class RecieveForm extends javax.swing.JFrame {
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel2.setText("ITEM NAME");
 
-        jTextField2.setEditable(false);
+        txt_item_name.setEditable(false);
 
-        jTextField3.setEditable(false);
+        txt_item_id.setEditable(false);
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel3.setText("ITEM ID");
@@ -82,15 +333,12 @@ public class RecieveForm extends javax.swing.JFrame {
         jLabel4.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel4.setText("ITEM QUANTITY");
 
-        jTextField4.setEditable(false);
+        txt_item_quantity.setEditable(false);
 
-        jTextField5.setEditable(false);
+        txt_quantity_in.setEditable(false);
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel5.setText("IN");
-
-        jCheckBox1.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
-        jCheckBox1.setText("NEW");
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel6.setText("ADD");
@@ -104,7 +352,9 @@ public class RecieveForm extends javax.swing.JFrame {
         jLabel9.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel9.setText("RECIEPT NO");
 
-        jLabel10.setText("OFFICER IN CHARGE");
+        jRadioButton_new_item.setText("NEW");
+
+        jRadioButton_existing_item.setText("EXISTING");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -114,87 +364,83 @@ public class RecieveForm extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                                .addComponent(jCheckBox1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jLabel2)
-                                .addGap(38, 38, 38)))
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel3)
-                            .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(jTextField9, javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                        .addComponent(jTextField7, javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
-                                            .addComponent(jLabel6)
-                                            .addGap(18, 18, 18)
-                                            .addComponent(jTextField6, javax.swing.GroupLayout.DEFAULT_SIZE, 103, Short.MAX_VALUE))
-                                        .addComponent(jTextField4, javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.LEADING))
-                                    .addComponent(jLabel7)))
-                            .addComponent(jLabel9))
+                                .addComponent(txt_item_from, javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
+                                    .addComponent(jLabel6)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(txt_item_add, javax.swing.GroupLayout.DEFAULT_SIZE, 103, Short.MAX_VALUE))
+                                .addComponent(txt_item_quantity, javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.LEADING))
+                            .addComponent(jLabel9)
+                            .addComponent(jLabel7))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jTextField5)
-                            .addComponent(jTextField8)
+                            .addComponent(txt_quantity_in)
+                            .addComponent(txt_item_cash)
                             .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel10)
                                     .addComponent(jLabel8)
                                     .addComponent(jLabel5))
-                                .addGap(0, 0, Short.MAX_VALUE)))))
+                                .addGap(0, 0, Short.MAX_VALUE))))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(txt_item_name, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txt_item_receipt_no, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel2)
+                            .addComponent(jRadioButton_new_item))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel3)
+                            .addComponent(jRadioButton_existing_item)
+                            .addComponent(txt_item_id, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 6, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jRadioButton_new_item)
+                    .addComponent(jRadioButton_existing_item))
+                .addGap(18, 18, 18)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
-                    .addComponent(jLabel3)
-                    .addComponent(jCheckBox1))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addComponent(jLabel3))
+                .addGap(18, 18, 18)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txt_item_name, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txt_item_id, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(jLabel5))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txt_item_quantity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txt_quantity_in, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel6))
-                .addGap(30, 30, 30)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(txt_item_add, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
                     .addComponent(jLabel8))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel9)
-                    .addComponent(jLabel10))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jTextField9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txt_item_from, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txt_item_cash, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(jLabel9)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(txt_item_receipt_no, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {},
                 {},
@@ -205,7 +451,7 @@ public class RecieveForm extends javax.swing.JFrame {
 
             }
         ));
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(table);
 
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("ACTIONS"));
 
@@ -214,6 +460,11 @@ public class RecieveForm extends javax.swing.JFrame {
 
         jButton2.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jButton2.setText("EFFECT");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -222,7 +473,7 @@ public class RecieveForm extends javax.swing.JFrame {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(28, 28, 28)
+                .addGap(18, 18, 18)
                 .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -233,7 +484,7 @@ public class RecieveForm extends javax.swing.JFrame {
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
                     .addComponent(jButton2))
-                .addContainerGap(86, Short.MAX_VALUE))
+                .addContainerGap(40, Short.MAX_VALUE))
         );
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
@@ -250,7 +501,7 @@ public class RecieveForm extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txt_table_search, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(jLabel1)
                         .addContainerGap())
@@ -263,10 +514,10 @@ public class RecieveForm extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(16, 16, 16)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txt_table_search, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel1))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jScrollPane1))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 434, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -322,16 +573,42 @@ public class RecieveForm extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        GiveForm giveForm=new GiveForm();
+        GiveForm giveForm = new GiveForm(storeType);
         giveForm.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
-        TransactionsForm transactionsForm=new TransactionsForm();
+        TransactionsForm transactionsForm = new TransactionsForm(storeType);
         transactionsForm.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jMenuItem2ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        String password = JOptionPane.showInputDialog("Enter Your Password ");
+        String user_name=methods.getUserNameByPassword(password);
+        
+        
+        if (!"null".equals(user_name)) {
+
+            if (checkEmpty()) {
+
+                if (newItem) {
+                   insertNewItem(user_name);
+                } else {
+                  updateExistingItem(user_name);  
+                }
+
+                
+            }
+            
+            
+        } else {
+            JOptionPane.showMessageDialog(null, "UN-REGISTERD PASSWORD..."
+                    + "\n"
+                    + "FIND ASSISTANCE FROM SYSTEM ADMINISTRATOR");
+        }
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -371,9 +648,7 @@ public class RecieveForm extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
-    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -392,16 +667,18 @@ public class RecieveForm extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JRadioButton jRadioButton_existing_item;
+    private javax.swing.JRadioButton jRadioButton_new_item;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField5;
-    private javax.swing.JTextField jTextField6;
-    private javax.swing.JTextField jTextField7;
-    private javax.swing.JTextField jTextField8;
-    private javax.swing.JTextField jTextField9;
+    private javax.swing.JTable table;
+    private javax.swing.JTextField txt_item_add;
+    private javax.swing.JTextField txt_item_cash;
+    private javax.swing.JTextField txt_item_from;
+    private javax.swing.JTextField txt_item_id;
+    private javax.swing.JTextField txt_item_name;
+    private javax.swing.JTextField txt_item_quantity;
+    private javax.swing.JTextField txt_item_receipt_no;
+    private javax.swing.JTextField txt_quantity_in;
+    private javax.swing.JTextField txt_table_search;
     // End of variables declaration//GEN-END:variables
 }

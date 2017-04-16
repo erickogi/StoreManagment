@@ -18,6 +18,13 @@ public class GiveForm extends javax.swing.JFrame {
     /**
      * Creates new form GiveForm
      */
+    private String storeType;
+
+    public GiveForm(String storeType) {
+        this.storeType = storeType;
+         initComponents();
+         this.setTitle(storeType+" -Give Form");
+    }
     public GiveForm() {
         initComponents();
     }
@@ -288,13 +295,13 @@ public class GiveForm extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
-        TransactionsForm transactionsForm=new TransactionsForm();
+        TransactionsForm transactionsForm=new TransactionsForm(storeType);
         transactionsForm.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        RecieveForm recieveForm=new RecieveForm();
+        RecieveForm recieveForm=new RecieveForm(storeType);
         recieveForm.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jMenuItem1ActionPerformed
@@ -327,10 +334,8 @@ public class GiveForm extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new GiveForm().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new GiveForm("null store").setVisible(true);
         });
     }
 

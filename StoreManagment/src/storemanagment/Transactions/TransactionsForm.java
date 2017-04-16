@@ -18,8 +18,17 @@ public class TransactionsForm extends javax.swing.JFrame {
     /**
      * Creates new form TransactionsForm
      */
+    private String storeType;
+
+    public TransactionsForm(String storeType) {
+        this.storeType = storeType;
+         initComponents();
+         this.setTitle(storeType+" -Transactions");
+    }
+    
+    
     public TransactionsForm() {
-        initComponents();
+           initComponents();
     }
 
     /**
@@ -404,14 +413,14 @@ public class TransactionsForm extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        RecieveForm recieveForm=new RecieveForm();
+        RecieveForm recieveForm=new RecieveForm(storeType);
         recieveForm.setVisible(true);
         this.dispose();
         
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
-        GiveForm giveForm=new GiveForm();
+        GiveForm giveForm=new GiveForm(storeType);
         giveForm.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jMenuItem2ActionPerformed
