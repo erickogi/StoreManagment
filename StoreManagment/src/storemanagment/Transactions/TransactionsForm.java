@@ -5,16 +5,26 @@
  */
 package storemanagment.Transactions;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import storemanagment.Give.GiveForm;
+import storemanagment.ItemsPojo;
+import storemanagment.Keys;
+import storemanagment.Methods;
 import storemanagment.Recieve.RecieveForm;
+import storemanagment.TransactionsPojo;
 
 /**
  *
  * @author kimani kogi
  */
 public class TransactionsForm extends javax.swing.JFrame {
-
+Methods methods=new Methods();
     /**
      * Creates new form TransactionsForm
      */
@@ -23,14 +33,135 @@ public class TransactionsForm extends javax.swing.JFrame {
     public TransactionsForm(String storeType) {
         this.storeType = storeType;
          initComponents();
+         findTransactions();
          this.setTitle(storeType+" -Transactions");
     }
     
     
     public TransactionsForm() {
            initComponents();
+           findTransactions();
     }
 
+    public ArrayList<TransactionsPojo> ListTransactions(String Id) {
+        ArrayList<TransactionsPojo> transactionsList = new ArrayList();
+        try {
+
+            Connection con = methods.getConnection();
+            
+            Statement st = con.createStatement();
+            
+            String searchQuery = "SELECT * FROM " + Keys.KEY_TRANSACTION_TABLE + ""
+                    + " WHERE CONCAT(" + Keys.KEY_TRANSACTION_RECEIPT_GIVEN + "," + Keys.KEY_TRANSACTION_RECEIPT_RECIEVED+ "," + Keys.KEY_ITEM_ID + "," + Keys.KEY_ITEM_NAME + ") LIKE '%" + Id + "%'  "
+                    + "AND " + Keys.KEY_ITEM_TYPE + " = '" + this.storeType + "'";
+            ResultSet rs = st.executeQuery(searchQuery);
+            while (rs.next()) {
+//TransactionsPojo(int transaction_id, int item_id, String item_name, String item_type, String transaction_quantity,
+//String transaction_quantity_in, String transaction_type, String transaction_to, String transaction_from, String transaction_cash, 
+//String transaction_receipt_no_in, String transaction_receipt_no_out, String transaction_officer_incharge, String transaction_time_string)
+        
+        
+        
+                TransactionsPojo data = new TransactionsPojo(
+                        rs.getInt(Keys.KEY_TRANSACTION_ID),
+                        rs.getInt(Keys.KEY_ITEM_ID),
+                        rs.getString(Keys.KEY_ITEM_NAME),
+                        rs.getString(Keys.KEY_ITEM_TYPE),
+                        rs.getString(Keys.KEY_TRANSACTION_QUANTITY),
+                        rs.getString(Keys.KEY_TRANSACTION_QUANTITY_IN),
+                        rs.getString(Keys.KEY_TRANSACTION_TYPE),
+                        rs.getString(Keys.KEY_TRANSACTION_TO),
+                        rs.getString(Keys.KEY_TRANSACTION_FROM),
+                        rs.getString(Keys.KEY_TRANSACTION_CASH),
+                        rs.getString(Keys.KEY_TRANSACTION_RECEIPT_RECIEVED),
+                        rs.getString(Keys.KEY_TRANSACTION_RECEIPT_GIVEN),
+                        rs.getString(Keys.KEY_TRANSACTION_OFFICER_INCHARGE),
+                        rs.getString(Keys.KEY_TRANSACTION_TIME)
+                );
+
+                transactionsList.add(data);
+            }
+            st.close();
+            rs.close();
+            con.close();
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+        return transactionsList;
+    }
+
+    private void refresh() {
+
+        DefaultTableModel model = (DefaultTableModel) this.table.getModel();
+
+        model.setRowCount(0);
+
+        findTransactions();
+    }
+
+    public void findTransactions() {
+        ArrayList<TransactionsPojo> data = ListTransactions(txt_table_search.getText());
+        DefaultTableModel model = new DefaultTableModel();
+//TransactionsPojo(int transaction_id, int item_id, String item_name, String item_type, String transaction_quantity,
+//String transaction_quantity_in, String transaction_type, String transaction_to, String transaction_from, String transaction_cash, 
+//String transaction_receipt_no_in, String transaction_receipt_no_out, String transaction_officer_incharge, String transaction_time_string)
+        model.setColumnIdentifiers(new Object[]{"DATE", "RECEIPT", "ID", "NAME","TYPE", "QUANTITY","IN","TO/FROM","CASH","OFFICER","ITEM_NO"});
+        Object[] row = new Object[11];
+        for (int i = 0; i < data.size(); i++) {
+            row[0] = ((TransactionsPojo) data.get(i)).getTransaction_time_string();
+            
+             String type = ((TransactionsPojo) data.get(i)).getTransaction_type();
+             if(type.equals(Keys.KEY_TRANSACTION_GIVE)){
+                row[1] = ((TransactionsPojo) data.get(i)).getTransaction_receipt_no_out(); 
+                row[7] = ((TransactionsPojo) data.get(i)).getTransaction_to();
+             }
+             else {
+                 row[1] = ((TransactionsPojo) data.get(i)).getTransaction_receipt_no_in();
+                 row[7] = ((TransactionsPojo) data.get(i)).getTransaction_from();
+             }
+            
+            row[2] = ((TransactionsPojo) data.get(i)).getTransaction_id();
+            row[3] = ((TransactionsPojo) data.get(i)).getItem_name();
+            
+             row[4] = type;
+             
+            row[5] = ((TransactionsPojo) data.get(i)).getTransaction_quantity();
+            row[6] = ((TransactionsPojo) data.get(i)).getTransaction_quantity_in();
+            
+           row[8] = ((TransactionsPojo) data.get(i)).getTransaction_cash();
+            row[9] = ((TransactionsPojo) data.get(i)).getTransaction_officer_incharge();
+            
+            
+            
+            
+            row[10] = ((TransactionsPojo) data.get(i)).getItem_id();
+           
+
+            model.addRow(row);
+        }
+        this.table.setModel(model);
+
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -43,28 +174,28 @@ public class TransactionsForm extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
-        jTextField3 = new javax.swing.JTextField();
+        txt_transaction_id = new javax.swing.JTextField();
+        txt_item_name = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
-        jTextField4 = new javax.swing.JTextField();
+        txt_transaction_date = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
-        jTextField5 = new javax.swing.JTextField();
+        txt_transaction_to_from = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
-        jTextField6 = new javax.swing.JTextField();
+        txt_transaction_receipt = new javax.swing.JTextField();
         jLabel9 = new javax.swing.JLabel();
-        jTextField7 = new javax.swing.JTextField();
+        txt_officer_in_charge = new javax.swing.JTextField();
         jLabel10 = new javax.swing.JLabel();
-        jTextField8 = new javax.swing.JTextField();
+        txt_transaction_quantity = new javax.swing.JTextField();
         jLabel11 = new javax.swing.JLabel();
-        jTextField9 = new javax.swing.JTextField();
+        txt_transaction_quantity_in = new javax.swing.JTextField();
         jLabel12 = new javax.swing.JLabel();
-        jTextField10 = new javax.swing.JTextField();
-        jLabel13 = new javax.swing.JLabel();
-        jTextField11 = new javax.swing.JTextField();
+        txt_transaction_cash = new javax.swing.JTextField();
+        txt_it = new javax.swing.JLabel();
+        txt_item_id = new javax.swing.JTextField();
         jScrollPane2 = new javax.swing.JScrollPane();
-        tbl_transactions = new javax.swing.JTable();
-        jTextField1 = new javax.swing.JTextField();
+        table = new javax.swing.JTable();
+        txt_table_search = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         jDateChooserFrom = new com.toedter.calendar.JDateChooser();
         jLabel2 = new javax.swing.JLabel();
@@ -90,14 +221,19 @@ public class TransactionsForm extends javax.swing.JFrame {
 
         jLabel4.setText("Transction No");
 
-        jTextField2.setEditable(false);
+        txt_transaction_id.setEditable(false);
 
-        jTextField3.setEditable(false);
+        txt_item_name.setEditable(false);
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel5.setText("ITEM NAME");
 
-        jTextField4.setEditable(false);
+        txt_transaction_date.setEditable(false);
+        txt_transaction_date.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txt_transaction_dateActionPerformed(evt);
+            }
+        });
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel6.setText("TRANSACTION DATE");
@@ -105,16 +241,16 @@ public class TransactionsForm extends javax.swing.JFrame {
         jLabel7.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel7.setText("TO/FROM");
 
-        jTextField5.setEditable(false);
+        txt_transaction_to_from.setEditable(false);
 
         jLabel8.setText("Reciept No");
 
-        jTextField6.setEditable(false);
+        txt_transaction_receipt.setEditable(false);
 
         jLabel9.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel9.setText("OFFICER IN CHARGE");
 
-        jTextField7.setEditable(false);
+        txt_officer_in_charge.setEditable(false);
 
         jLabel10.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel10.setText("QUANTITY");
@@ -122,15 +258,15 @@ public class TransactionsForm extends javax.swing.JFrame {
         jLabel11.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel11.setText("IN");
 
-        jTextField9.setEditable(false);
+        txt_transaction_quantity_in.setEditable(false);
 
         jLabel12.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel12.setText("CASH");
 
-        jLabel13.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel13.setText("RECIEPT NO -IN");
+        txt_it.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        txt_it.setText("ITEM ID");
 
-        jTextField11.setEditable(false);
+        txt_item_id.setEditable(false);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -138,38 +274,38 @@ public class TransactionsForm extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(jTextField10, javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(jTextField8, javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
-                                            .addComponent(jLabel4)
-                                            .addGap(18, 18, 18)
-                                            .addComponent(jTextField2, javax.swing.GroupLayout.DEFAULT_SIZE, 97, Short.MAX_VALUE))
-                                        .addComponent(jTextField5, javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(jTextField3, javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.LEADING))
-                                    .addComponent(jLabel7)))
-                            .addComponent(jLabel10)))
-                    .addComponent(jLabel12))
-                .addGap(18, 18, 18)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jLabel13)
-                    .addComponent(jLabel11)
-                    .addComponent(jLabel9)
-                    .addComponent(jLabel6)
-                    .addComponent(jTextField4)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabel8)
-                        .addGap(18, 18, 18)
-                        .addComponent(jTextField6, javax.swing.GroupLayout.DEFAULT_SIZE, 111, Short.MAX_VALUE))
-                    .addComponent(jTextField7)
-                    .addComponent(jTextField9)
-                    .addComponent(jTextField11))
+                    .addComponent(txt_transaction_quantity)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
+                                .addComponent(jLabel4)
+                                .addGap(18, 18, 18)
+                                .addComponent(txt_transaction_id, javax.swing.GroupLayout.DEFAULT_SIZE, 97, Short.MAX_VALUE))
+                            .addComponent(txt_transaction_to_from, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(txt_item_name, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
+                                .addComponent(jLabel5)
+                                .addGap(20, 20, 20)))
+                        .addComponent(jLabel7))
+                    .addComponent(jLabel10)
+                    .addComponent(jLabel12)
+                    .addComponent(txt_transaction_cash))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jLabel11)
+                        .addComponent(jLabel9)
+                        .addComponent(jLabel6)
+                        .addComponent(txt_transaction_date)
+                        .addGroup(jPanel2Layout.createSequentialGroup()
+                            .addComponent(jLabel8)
+                            .addGap(18, 18, 18)
+                            .addComponent(txt_transaction_receipt, javax.swing.GroupLayout.DEFAULT_SIZE, 111, Short.MAX_VALUE))
+                        .addComponent(txt_officer_in_charge)
+                        .addComponent(txt_transaction_quantity_in)
+                        .addComponent(txt_item_id))
+                    .addComponent(txt_it))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
@@ -178,45 +314,45 @@ public class TransactionsForm extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txt_transaction_id, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel8)
-                    .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txt_transaction_receipt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
-                    .addComponent(jLabel6))
+                    .addComponent(txt_it))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txt_item_name, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txt_item_id, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
-                    .addComponent(jLabel9))
+                    .addComponent(jLabel6))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txt_transaction_to_from, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txt_transaction_date, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel10)
                     .addComponent(jLabel11))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txt_transaction_quantity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txt_transaction_quantity_in, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel12)
-                    .addComponent(jLabel13))
+                    .addComponent(jLabel9))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txt_transaction_cash, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txt_officer_in_charge, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(49, Short.MAX_VALUE))
         );
 
-        tbl_transactions.setModel(new javax.swing.table.DefaultTableModel(
+        table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {},
                 {},
@@ -227,9 +363,20 @@ public class TransactionsForm extends javax.swing.JFrame {
 
             }
         ));
-        jScrollPane2.setViewportView(tbl_transactions);
+        table.setRowHeight(40);
+        table.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tableMouseClicked(evt);
+            }
+        });
+        jScrollPane2.setViewportView(table);
 
-        jTextField1.setToolTipText("Search");
+        txt_table_search.setToolTipText("Search");
+        txt_table_search.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txt_table_searchKeyReleased(evt);
+            }
+        });
 
         jLabel1.setText("SEARCH");
 
@@ -308,7 +455,7 @@ public class TransactionsForm extends javax.swing.JFrame {
                     .addComponent(jScrollPane2)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txt_table_search, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel1))
                         .addGap(75, 75, 75)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -344,7 +491,7 @@ public class TransactionsForm extends javax.swing.JFrame {
                                 .addGap(0, 506, Short.MAX_VALUE))
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jTextField1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(txt_table_search, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(jDateChooserFrom, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(jDateChooserTo, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(18, 18, 18)
@@ -429,6 +576,42 @@ public class TransactionsForm extends javax.swing.JFrame {
        String password = JOptionPane.showInputDialog("Enter Your Password ");
     }//GEN-LAST:event_jButton4ActionPerformed
 
+    private void tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableMouseClicked
+        int i = this.table.getSelectedRow();
+
+        TableModel model = this.table.getModel();
+
+       // "DATE", "RECEIPT", "ID", "NAME","TYPE", "QUANTITY","IN","OFFICER","ITEM_NO"
+        this.txt_item_id.setText(model.getValueAt(i, 10).toString());
+
+        this.txt_item_name.setText(model.getValueAt(i, 3).toString());
+
+        this.txt_transaction_quantity.setText(model.getValueAt(i, 5).toString());
+        
+        this.txt_transaction_quantity_in.setText(model.getValueAt(i, 6).toString());
+        
+        this.txt_officer_in_charge.setText(model.getValueAt(i, 9).toString());
+        
+        this.txt_transaction_date.setText(model.getValueAt(i, 0).toString());
+        
+        this.txt_transaction_receipt.setText(model.getValueAt(i, 1).toString());
+        
+        this.txt_transaction_id.setText(model.getValueAt(i, 2).toString());
+        
+        this.txt_transaction_to_from.setText(model.getValueAt(i, 7).toString());
+        
+        this.txt_transaction_cash.setText(model.getValueAt(i, 8).toString());
+        
+    }//GEN-LAST:event_tableMouseClicked
+
+    private void txt_transaction_dateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_transaction_dateActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txt_transaction_dateActionPerformed
+
+    private void txt_table_searchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_table_searchKeyReleased
+      refresh();
+    }//GEN-LAST:event_txt_table_searchKeyReleased
+
     /**
      * @param args the command line arguments
      */
@@ -476,7 +659,6 @@ public class TransactionsForm extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -496,17 +678,18 @@ public class TransactionsForm extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField10;
-    private javax.swing.JTextField jTextField11;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField5;
-    private javax.swing.JTextField jTextField6;
-    private javax.swing.JTextField jTextField7;
-    private javax.swing.JTextField jTextField8;
-    private javax.swing.JTextField jTextField9;
-    private javax.swing.JTable tbl_transactions;
+    private javax.swing.JTable table;
+    private javax.swing.JLabel txt_it;
+    private javax.swing.JTextField txt_item_id;
+    private javax.swing.JTextField txt_item_name;
+    private javax.swing.JTextField txt_officer_in_charge;
+    private javax.swing.JTextField txt_table_search;
+    private javax.swing.JTextField txt_transaction_cash;
+    private javax.swing.JTextField txt_transaction_date;
+    private javax.swing.JTextField txt_transaction_id;
+    private javax.swing.JTextField txt_transaction_quantity;
+    private javax.swing.JTextField txt_transaction_quantity_in;
+    private javax.swing.JTextField txt_transaction_receipt;
+    private javax.swing.JTextField txt_transaction_to_from;
     // End of variables declaration//GEN-END:variables
 }

@@ -53,6 +53,7 @@ final String uline = "__________________________________________________________
         initComponents();
     }
     private void setCart(){
+        txt_cart_area.setText(null);
          txt_cart_area.append("Item :                            Qty :                            Id  \n"   );
          txt_cart_area.append(uline +"\n"+dline+"\n\n" );
 
@@ -660,7 +661,13 @@ String produce(){
   }
  
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-threadExecute();       
+if(txt_item_to.getText().isEmpty()){
+    JOptionPane.showMessageDialog(null,"Enter receipient");
+}
+else{
+        
+        threadExecute();
+}
         
     }//GEN-LAST:event_jButton2ActionPerformed
 

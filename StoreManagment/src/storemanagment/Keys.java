@@ -57,7 +57,7 @@ public class Keys {
     public static final String KEY_TRANSACTION_RECIEVE_NEW="Recieved New Item(Insert)";
     public static final String KEY_TRANSACTION_RECEIVE_EXISTING="Recieved Existing Item(Update)";
     
-    public static final String KEY_TRANSACTION_GIVE="receipt_time";
+    public static final String KEY_TRANSACTION_GIVE="Given Out";
   
     
     
