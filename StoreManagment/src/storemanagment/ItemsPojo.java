@@ -20,6 +20,8 @@ public class ItemsPojo {
   private String item_quantity;
   private String item_quantity_in;
   private Date item_updated_at;
+   private String item_updated_at_string;
+  
   
   
   static TableModel resultSetToTableModel(ResultSet result)
@@ -35,7 +37,23 @@ public class ItemsPojo {
         this.item_quantity_in = item_quantity_in;
         this.item_updated_at = item_updated_at;
     }
+    public ItemsPojo(int item_id, String item_name, String item_type, String item_quantity, String item_quantity_in, String item_updated_at) {
+        this.item_id = item_id;
+        this.item_name = item_name;
+        this.item_type = item_type;
+        this.item_quantity = item_quantity;
+        this.item_quantity_in = item_quantity_in;
+        this.item_updated_at_string = item_updated_at;
+    }
 
+    public String getItem_updated_at_string() {
+        return item_updated_at_string;
+    }
+
+    public void setItem_updated_at_string(String item_updated_at_string) {
+        this.item_updated_at_string = item_updated_at_string;
+    }
+    
     public int getItem_id() {
         return item_id;
     }
