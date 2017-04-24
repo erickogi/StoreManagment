@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+
 import storemanagment.CartPojo;
 import storemanagment.ItemsPojo;
 import storemanagment.Keys;
@@ -136,7 +137,7 @@ final String uline = "__________________________________________________________
                 
                 + "'" + transaction_quantity + "',"
                 
-                + "'" + Keys.KEY_TRANSACTION_TYPE + "',"
+                + "'" + Keys.KEY_TRANSACTION_GIVE+ "',"
                 
                 + "'" + transaction_quantity_in + "',"
                 
@@ -332,6 +333,8 @@ String produce(){
         jMenu2 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItem2 = new javax.swing.JMenuItem();
+        jMenu3 = new javax.swing.JMenu();
+        jMenuItem5 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -540,6 +543,7 @@ String produce(){
         jMenuBar1.add(jMenu1);
 
         jMenu2.setText("Operations");
+        jMenu2.setMargin(new java.awt.Insets(0, 0, 0, 20));
 
         jMenuItem1.setText("Recieve");
         jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
@@ -558,6 +562,19 @@ String produce(){
         jMenu2.add(jMenuItem2);
 
         jMenuBar1.add(jMenu2);
+
+        jMenu3.setText("Tools");
+
+        jMenuItem5.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_M, java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItem5.setText("Calc");
+        jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem5ActionPerformed(evt);
+            }
+        });
+        jMenu3.add(jMenuItem5);
+
+        jMenuBar1.add(jMenu3);
 
         setJMenuBar(jMenuBar1);
 
@@ -635,8 +652,8 @@ String produce(){
          
          
          }
-         txt_item_to.setText("");
-         txt_item_to.setText("");
+        // txt_item_to.setText("");
+        // txt_item_to.setText("");
          setCart();
          jProgressBar1.setIndeterminate(false);
          jProgressBar1.setVisible(false);
@@ -755,6 +772,10 @@ public void insertToCart(){
              insertToCart();
              }
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
+        Calc n=new Calc();
+    }//GEN-LAST:event_jMenuItem5ActionPerformed
  private void reduceQuantity() {
 
         try {
@@ -818,11 +839,13 @@ public void insertToCart(){
     private javax.swing.JLabel jLabel7;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
+    private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;

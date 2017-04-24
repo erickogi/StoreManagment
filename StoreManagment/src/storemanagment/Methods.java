@@ -62,7 +62,7 @@ public class Methods {
                 a = 1;
                 JOptionPane.showMessageDialog(null, message + " Succefully");
             } else {
-                JOptionPane.showMessageDialog(null, message);
+                JOptionPane.showMessageDialog(null, message+" not successfull");
             }
             st.close();
             con.close();
