@@ -5,10 +5,15 @@
  */
 package storemanagment.Transactions;
 
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Toolkit;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -34,6 +39,8 @@ Methods methods=new Methods();
         this.storeType = storeType;
          initComponents();
          findTransactions();
+         jButton4.setVisible(false);
+          setTilteImage();
          this.setTitle(storeType+" -Transactions");
     }
     
@@ -42,6 +49,31 @@ Methods methods=new Methods();
            initComponents();
            findTransactions();
     }
+             public Color setTilteImage(){
+        Color c=null;
+        try {
+            //Methods n=new Methods();
+            
+            String i=methods.setIconImage();
+            this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource(i)));
+            
+            String col=methods.selectcolor();
+             c=new Color(Integer.parseInt(col));
+           // jPanel1.setBackground(c);
+            Container cont=this.getContentPane();
+            cont.getWidth();
+            cont.setBackground(c);
+            
+              jPanel1.setBackground(c);
+              jPanel2.setBackground(c);
+              jPanel3.setBackground(c);
+            
+            this.setForeground(c);
+        } catch (Exception ex) {
+            Logger.getLogger(TransactionsForm.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return c;
+}
 
     public ArrayList<TransactionsPojo> ListTransactions(String Id) {
         ArrayList<TransactionsPojo> transactionsList = new ArrayList();
@@ -53,7 +85,7 @@ Methods methods=new Methods();
             
             String searchQuery = "SELECT * FROM " + Keys.KEY_TRANSACTION_TABLE + ""
                     + " WHERE CONCAT(" + Keys.KEY_TRANSACTION_RECEIPT_GIVEN + "," + Keys.KEY_TRANSACTION_RECEIPT_RECIEVED+ "," + Keys.KEY_ITEM_ID + "," + Keys.KEY_ITEM_NAME + ") LIKE '%" + Id + "%'  "
-                    + "AND " + Keys.KEY_ITEM_TYPE + " = '" + this.storeType + "'";
+                    + "AND " + Keys.KEY_ITEM_TYPE + " = '" + this.storeType + "' ORDER BY "+Keys.KEY_TRANSACTION_ID+" DESC";
             ResultSet rs = st.executeQuery(searchQuery);
             while (rs.next()) {
 //TransactionsPojo(int transaction_id, int item_id, String item_name, String item_type, String transaction_quantity,
@@ -67,6 +99,7 @@ Methods methods=new Methods();
                         rs.getInt(Keys.KEY_ITEM_ID),
                         rs.getString(Keys.KEY_ITEM_NAME),
                         rs.getString(Keys.KEY_ITEM_TYPE),
+                        rs.getInt(Keys.KEY_TRANSACTION_REVERT_STATUS),
                         rs.getString(Keys.KEY_TRANSACTION_QUANTITY),
                         rs.getString(Keys.KEY_TRANSACTION_QUANTITY_IN),
                         rs.getString(Keys.KEY_TRANSACTION_TYPE),
@@ -123,17 +156,13 @@ Methods methods=new Methods();
             row[2] = ((TransactionsPojo) data.get(i)).getTransaction_id();
             row[3] = ((TransactionsPojo) data.get(i)).getItem_name();
             
-             row[4] = type;
+            row[4] = type;
              
             row[5] = ((TransactionsPojo) data.get(i)).getTransaction_quantity();
             row[6] = ((TransactionsPojo) data.get(i)).getTransaction_quantity_in();
             
-           row[8] = ((TransactionsPojo) data.get(i)).getTransaction_cash();
+            row[8] = ((TransactionsPojo) data.get(i)).getTransaction_cash();
             row[9] = ((TransactionsPojo) data.get(i)).getTransaction_officer_incharge();
-            
-            
-            
-            
             row[10] = ((TransactionsPojo) data.get(i)).getItem_id();
            
 
@@ -143,25 +172,181 @@ Methods methods=new Methods();
 
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+     public void threadExecute(int code){
+     Thread log=new Thread(){
+     public void run(){
+     String newQuantity="0";
+         switch (code) {
+             case 1:
+                 if (type.equals(Keys.KEY_TRANSACTION_GIVE)) {
+                     newQuantity = String.valueOf(getQuantityNow(txt_item_id.getText()) + Double.valueOf(txt_transaction_quantity.getText()));
+                 } else if (type.equals(Keys.KEY_TRANSACTION_RECIEVE_NEW) || type.equals(Keys.KEY_TRANSACTION_RECEIVE_EXISTING)) {
+                     newQuantity = String.valueOf(getQuantityNow(txt_item_id.getText())
+                             - Integer.valueOf(txt_transaction_quantity.getText()));
+                 }
+
+                 System.out.println(newQuantity);
+                 updateExistingItem(
+                         txt_officer_in_charge.getText(),
+                         newQuantity,
+                         Integer.valueOf(txt_item_id.getText()), txt_item_name.getText(),
+                         "-" + txt_transaction_quantity.getText(),
+                         txt_transaction_quantity_in.getText(),
+                         txt_transaction_receipt.getText(),
+                         Keys.KEY_TRANSACTION_REVERT + " " + txt_transaction_id.getText(),
+                         "--",
+                         "--",
+                         "-" + txt_transaction_cash.getText(),
+                         txt_transaction_receipt.getText()
+                 );
+                 break;
+             case 2:
+                 
+                 
+                 break;
+             case 3:
+                 
+                 
+                 break;
+             case 4:
+                 
+                 
+                 break;
+             default:
+                 
+                 
+                 break;
+         }
+} 
+      }   ;  
+      log.start();
+  }
+    double getQuantityNow(String itemId){
+        double quantity=0;
+          try {
+            System.out.println(itemId);
+            Connection con = methods.getConnection();
+            
+            Statement st = con.createStatement();
+            
+            String searchQuery = "SELECT * FROM " + Keys.KEY_ITEMS_TABLE + " WHERE item_id ='"+itemId+"' ";
+            ResultSet rs = st.executeQuery(searchQuery);
+            if(rs.next()){
+                quantity=Double.valueOf(rs.getString("item_quantity"));
+                 System.out.println(quantity);
+            }
+            else{
+                 System.out.println("else");
+            }
+            st.close();
+            rs.close();
+            con.close();
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+          return quantity;
+     }
+     void updateExistingItem(
+             String officer_in_charge,
+             String item_new_quantity,
+            int item_id,String item_name,String transaction_quantity,String transaction_quantity_in,String receipt_no,
+            String transactionType,String item_to,String item_from,String cash,String receipt_recieved
+     
+     ) {
+
+         
+         
+         
+         
+         
+        String query = "UPDATE " + Keys.KEY_ITEMS_TABLE + " SET " + Keys.KEY_ITEM_QUANTITY + "='" + item_new_quantity + "'"
+                + "," + Keys.KEY_ITEM_UPDATED_AT + "= now()"
+                + "WHERE " + Keys.KEY_ITEM_ID + "= '" + item_id + "' ";
+
+        if (methods.executeSQlQueryN(query) == 1) {
+//            String officer_in_charge,
+//             String item_new_quantity,
+//            int item_id,String item_name,String transaction_quantity,String transaction_quantity_in,String receipt_no,
+//            String transactionType,String item_to,String item_from,String cash,String receipt_recieved
+
+ 
+       setTransaction(item_id,item_name,transaction_quantity,
+       transaction_quantity_in,receipt_no,officer_in_charge,
+       transactionType,item_to,item_from,cash,receipt_recieved);
+     
+        }
+    // ) {
+        
+        
+            
+//           setTransaction(item_id,item_name,transaction_quantity,
+//           transaction_quantity_in,receipt_no,officer_in_charge);
+           
+           
+           
+           
+           
+           
+           
+           // }
+        else{
+            System.out.println("Error UpdateExistingItem");
+        }
+
+    }
+       void setTransaction(int item_id,String item_name,String transaction_quantity,
+       String transaction_quantity_in,String receipt_no,String officer_in_charge,
+       String transactionType,String item_to,String item_from,String cash,String reciept_recieved) {
+        
+        String nullValue = "--";
+        
+        String query = "INSERT INTO transactions_table("
+                + "" + Keys.KEY_ITEM_ID + ","
+                + "" + Keys.KEY_ITEM_NAME + ", "
+                + "" + Keys.KEY_ITEM_TYPE + ","
+                + "" + Keys.KEY_TRANSACTION_QUANTITY + ","
+                + "" + Keys.KEY_TRANSACTION_TYPE + ","
+                + "" + Keys.KEY_TRANSACTION_QUANTITY_IN + ","
+                + "" + Keys.KEY_TRANSACTION_TO + ","
+                + "" + Keys.KEY_TRANSACTION_FROM + ","
+                + "" + Keys.KEY_TRANSACTION_CASH + ","
+                + "" + Keys.KEY_TRANSACTION_RECEIPT_RECIEVED + ","
+                + "" + Keys.KEY_TRANSACTION_RECEIPT_GIVEN + ","
+                + "" + Keys.KEY_TRANSACTION_OFFICER_INCHARGE + ","
+                + "" + Keys.KEY_TRANSACTION_TIME + ")"
+                + " VALUES ("
+                + "'" + item_id + "',"
+                + "'" + item_name+ "',"
+                + "'" + this.storeType + "',"
+                
+                + "'" + transaction_quantity + "',"
+                
+                + "'" + transactionType+ "',"
+                
+                + "'" + transaction_quantity_in + "',"
+                
+                + "'" + item_to + "',"
+                + "'" + item_from + "',"
+                + "'" + cash+ "',"
+               // + "'" + this.txt_item_receipt_no.getText() + "',"
+                + "'" +  reciept_recieved+ "',"
+                + "'" + receipt_no + "',"
+                + "'" + officer_in_charge + "',now())";
+
+        if (methods.executeSQlQueryN(query) == 1) {
+            
+            JOptionPane.showMessageDialog(null, "REVERTED SUCCESSFULY");
+            refresh();
+        }
+        else{
+            System.out.println("Error setTransaction");
+        }
+    }
+    private void revertTransaction(){
+        
+        
+    }
+  
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -257,6 +442,8 @@ Methods methods=new Methods();
         jLabel10.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel10.setText("QUANTITY");
 
+        txt_transaction_quantity.setEditable(false);
+
         jLabel11.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel11.setText("IN");
 
@@ -264,6 +451,8 @@ Methods methods=new Methods();
 
         jLabel12.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel12.setText("CASH");
+
+        txt_transaction_cash.setEditable(false);
 
         txt_it.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         txt_it.setText("ITEM ID");
@@ -417,6 +606,11 @@ Methods methods=new Methods();
 
         jButton5.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jButton5.setText("CLEAR");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -568,10 +762,29 @@ Methods methods=new Methods();
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         String password = JOptionPane.showInputDialog("Enter Your Password ");
+         String user_name = methods.getUserNameByPassword(password);
+        if (!"null".equals(user_name)) {
+        //threadExecute(1);
+        }
+        else{
+             JOptionPane.showMessageDialog(null, "UN-REGISTERD PASSWORD..."
+                    + "\n"
+                    + "FIND ASSISTANCE FROM SYSTEM ADMINISTRATOR");
+        }
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         String password = JOptionPane.showInputDialog("Enter Your Password ");
+         String user_name = methods.getUserNameByPassword(password);
+
+        if (!"null".equals(user_name)) {
+        threadExecute(1);
+        }
+        else{
+             JOptionPane.showMessageDialog(null, "UN-REGISTERD PASSWORD..."
+                    + "\n"
+                    + "FIND ASSISTANCE FROM SYSTEM ADMINISTRATOR");
+        }
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
@@ -589,8 +802,34 @@ Methods methods=new Methods();
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
        String password = JOptionPane.showInputDialog("Enter Your Password ");
+       threadExecute(2);
+       
     }//GEN-LAST:event_jButton4ActionPerformed
-
+private String getRevertStatus(String transactionId){
+     String transactionRevertStatus="0";
+    try {
+            
+            Connection con = methods.getConnection();
+            
+            Statement st = con.createStatement();
+            
+            String searchQuery = "SELECT transaction_revert_status FROM " + Keys.KEY_TRANSACTION_TABLE + " WHERE "+Keys.KEY_TRANSACTION_ID+" ='"+transactionId+"' ";
+            ResultSet rs = st.executeQuery(searchQuery);
+            if(rs.next()){
+                transactionRevertStatus=(rs.getString("transaction_revert_status"));
+                 
+            }
+            else{
+                 System.out.println("else");
+            }
+            st.close();
+            rs.close();
+            con.close();
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+    return transactionRevertStatus;
+}
     private void tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableMouseClicked
         int i = this.table.getSelectedRow();
 
@@ -600,7 +839,10 @@ Methods methods=new Methods();
         this.txt_item_id.setText(model.getValueAt(i, 10).toString());
 
         this.txt_item_name.setText(model.getValueAt(i, 3).toString());
-
+        
+         type=model.getValueAt(i, 4).toString();
+         System.out.println(type);
+         
         this.txt_transaction_quantity.setText(model.getValueAt(i, 5).toString());
         
         this.txt_transaction_quantity_in.setText(model.getValueAt(i, 6).toString());
@@ -617,8 +859,18 @@ Methods methods=new Methods();
         
         this.txt_transaction_cash.setText(model.getValueAt(i, 8).toString());
         
+        
+        if("1".equals(getRevertStatus(txt_transaction_id.getText()))){
+            jButton2.setEnabled(false);
+        }
+        else if ("0".equals(getRevertStatus(txt_transaction_id.getText()))) {
+            jButton2.setEnabled(true);
+        }
+        
+        
+        
     }//GEN-LAST:event_tableMouseClicked
-
+String type;
     private void txt_transaction_dateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_transaction_dateActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txt_transaction_dateActionPerformed
@@ -630,6 +882,10 @@ Methods methods=new Methods();
     private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
         Calc n=new Calc();
     }//GEN-LAST:event_jMenuItem5ActionPerformed
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+     
+    }//GEN-LAST:event_jButton5ActionPerformed
 
     /**
      * @param args the command line arguments

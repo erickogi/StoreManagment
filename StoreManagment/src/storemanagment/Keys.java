@@ -32,6 +32,8 @@ public class Keys {
     public static final String KEY_TRANSACTION_ID="transaction_id";
     public static final String KEY_TRANSACTION_QUANTITY="transaction_quantity";
     public static final String KEY_TRANSACTION_TYPE="transaction_type";
+    public static final String KEY_TRANSACTION_REVERT_STATUS="transaction_revert_status";
+    
     public static final String KEY_TRANSACTION_QUANTITY_IN="transaction_quantity_in";
     public static final String KEY_TRANSACTION_TO="transaction_to";
     public static final String KEY_TRANSACTION_FROM="transaction_from";
@@ -58,6 +60,9 @@ public class Keys {
     public static final String KEY_TRANSACTION_RECEIVE_EXISTING="Recieved Existing Item(Update)";
     
     public static final String KEY_TRANSACTION_GIVE="Given Out";
+    
+     public static final String KEY_TRANSACTION_REVERT="Revert Of";
+     public static final String KEY_TRANSACTION_UPDATE="Update Of";
   
     
     

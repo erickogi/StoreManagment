@@ -16,6 +16,7 @@ public class TransactionsPojo {
   private int item_id;
   private String item_name;
   private String item_type;
+  private int transaction_revert_status;
   private String transaction_quantity;
   private String transaction_quantity_in;
   private String transaction_type;
@@ -28,11 +29,12 @@ public class TransactionsPojo {
   private Date transaction_time;
   private String transaction_time_string;
 
-    public TransactionsPojo(int transaction_id, int item_id, String item_name, String item_type, String transaction_quantity, String transaction_quantity_in, String transaction_type, String transaction_to, String transaction_from, String transaction_cash, String transaction_receipt_no_in, String transaction_receipt_no_out, String transaction_officer_incharge, String transaction_time_string) {
+    public TransactionsPojo(int transaction_id, int item_id, String item_name, String item_type,int transaction_revert_status, String transaction_quantity, String transaction_quantity_in, String transaction_type, String transaction_to, String transaction_from, String transaction_cash, String transaction_receipt_no_in, String transaction_receipt_no_out, String transaction_officer_incharge, String transaction_time_string) {
         this.transaction_id = transaction_id;
         this.item_id = item_id;
         this.item_name = item_name;
         this.item_type = item_type;
+        this.transaction_revert_status=transaction_revert_status;
         this.transaction_quantity = transaction_quantity;
         this.transaction_quantity_in = transaction_quantity_in;
         this.transaction_type = transaction_type;
@@ -43,6 +45,14 @@ public class TransactionsPojo {
         this.transaction_receipt_no_out = transaction_receipt_no_out;
         this.transaction_officer_incharge = transaction_officer_incharge;
         this.transaction_time_string = transaction_time_string;
+    }
+
+    public int getTransaction_revert_status() {
+        return transaction_revert_status;
+    }
+
+    public void setTransaction_revert_status(int transaction_revert_status) {
+        this.transaction_revert_status = transaction_revert_status;
     }
 
     public int getTransaction_id() {

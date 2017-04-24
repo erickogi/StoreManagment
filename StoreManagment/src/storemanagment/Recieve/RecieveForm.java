@@ -5,6 +5,9 @@
  */
 package storemanagment.Recieve;
 
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
@@ -64,6 +67,7 @@ public class RecieveForm extends javax.swing.JFrame {
         radiog.add(jRadioButton_new_item);
         jRadioButton_existing_item.setSelected(true);
         findItems();
+         setTilteImage();
         jRadioButton_existing_item.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -120,7 +124,31 @@ public class RecieveForm extends javax.swing.JFrame {
             }
         });
     }
-
+         public Color setTilteImage(){
+        Color c=null;
+        try {
+            //Methods n=new Methods();
+            
+            String i=methods.setIconImage();
+            this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource(i)));
+            
+            String col=methods.selectcolor();
+             c=new Color(Integer.parseInt(col));
+           // jPanel1.setBackground(c);
+            Container cont=this.getContentPane();
+            cont.getWidth();
+            cont.setBackground(c);
+             jPanel1.setBackground(c);
+             jPanel2.setBackground(c);
+              jPanel3.setBackground(c);
+            
+            
+            this.setForeground(c);
+        } catch (Exception ex) {
+            Logger.getLogger(RecieveForm.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return c;
+}
     boolean checkEmpty() {
         boolean okay = false;
         if (newItem) {
@@ -292,6 +320,7 @@ public class RecieveForm extends javax.swing.JFrame {
 
             clearAll();
             progressBarFalse();
+            refresh();
         } else {
 
         }

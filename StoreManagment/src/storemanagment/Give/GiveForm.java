@@ -18,7 +18,11 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
-
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
 import storemanagment.CartPojo;
 import storemanagment.ItemsPojo;
 import storemanagment.Keys;
@@ -45,6 +49,7 @@ final String uline = "__________________________________________________________
     
          initComponents();
          this.setTitle(storeType+" -Give Form");
+         setTilteImage();
          findItems();
          setCart();
          jProgressBar1.setVisible(false);
@@ -53,10 +58,38 @@ final String uline = "__________________________________________________________
     public GiveForm() {
         initComponents();
     }
+         public Color setTilteImage(){
+        Color c=null;
+        try {
+            //Methods n=new Methods();
+            
+            String i=methods.setIconImage();
+            this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource(i)));
+            
+            String col=methods.selectcolor();
+             c=new Color(Integer.parseInt(col));
+           // jPanel1.setBackground(c);
+            Container cont=this.getContentPane();
+            cont.getWidth();
+            cont.setBackground(c);
+                       
+            jPanel1.setBackground(c);
+             jPanel2.setBackground(c);
+              jPanel3.setBackground(c);
+             
+             
+            
+            
+            this.setForeground(c);
+        } catch (Exception ex) {
+            Logger.getLogger(GiveForm.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return c;
+}
     private void setCart(){
         txt_cart_area.setText(null);
          txt_cart_area.append("Item :                            Qty :                            Id  \n"   );
-         txt_cart_area.append(uline +"\n"+dline+"\n\n" );
+         txt_cart_area.append(uline +"\n" );
 
     }
     public ArrayList<ItemsPojo> ListItems(String Id) {
@@ -241,8 +274,9 @@ String produce(){
                 + "" + Keys.KEY_RECEIPT_NO + "," + Keys.KEY_RECEIPT_TIME + ")"
                 + " VALUES ('" + item_name + "','" + item_id + "','" + rcNo + "',now())";
 
-        if (methods.executeSQlQuery(query, "INSERTED") == 1) {
+        if (methods.executeSQlQueryN(query) == 1) {
              deleteCart(item_id);
+             refresh();
             
           
         } else {
@@ -260,7 +294,16 @@ String produce(){
                         System.out.println("Error deleteCart");
                     }
         }
-    
+     public void deleteAllCart(){
+                    //String query = "DELETE FROM "+Keys.KEY_CART_TABLE+"  WHERE "+Keys.KEY_ITEM_ID+" = '" +item_id+"'";
+                    String query = "DELETE FROM "+Keys.KEY_CART_TABLE+" ";
+                    if(methods.executeSQlQueryN(query)==1){
+                        JOptionPane.showMessageDialog(null, "Done");
+                    }
+                    else{
+                        System.out.println("Error deleteCart");
+                    }
+        }
     public ArrayList<CartPojo> ListCartItems() {
         ArrayList<CartPojo> itemsList = new ArrayList();
         try {
@@ -424,7 +467,7 @@ String produce(){
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap(15, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(jLabel3))
@@ -449,6 +492,11 @@ String produce(){
 
         jButton1.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jButton1.setText("CLEAR");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         jButton2.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jButton2.setText("EXECUTE");
@@ -600,7 +648,7 @@ String produce(){
                         .addContainerGap())
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 288, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(33, 33, 33))))
+                        .addGap(30, 30, 30))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -614,10 +662,10 @@ String produce(){
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 505, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -750,7 +798,7 @@ public void insertToCart(){
 
         if (methods.executeSQlQuery(query, "ADDED TO CART") == 1) {
             
-             txt_cart_area.append(""+this.txt_item_name.getText()+"                            "+this.txt_item_remove.getText()+""
+             txt_cart_area.append(""+this.txt_item_name.getText()+" \n                           "+this.txt_item_remove.getText()+""
                     + "                            "+this.txt_item_id.getText()+"  \n" );
              
              
@@ -776,6 +824,11 @@ public void insertToCart(){
     private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
         Calc n=new Calc();
     }//GEN-LAST:event_jMenuItem5ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+     clearAll();    
+     deleteAllCart();
+    }//GEN-LAST:event_jButton1ActionPerformed
  private void reduceQuantity() {
 
         try {

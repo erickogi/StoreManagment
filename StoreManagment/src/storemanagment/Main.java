@@ -57,7 +57,7 @@ public final class Main extends javax.swing.JFrame {
     try {
          Container cont=this.getContentPane();
             //;
-        d = ImageIO.read(Main.class.getResource("/storemanagment/Wall.jpg"));
+        d = ImageIO.read(Main.class.getResource("/storemanagment/admin.jpg"));
           Image f=d.getScaledInstance(labale_background.getWidth(), labale_background.getHeight(),Image.SCALE_SMOOTH);
          // 
         
@@ -211,6 +211,9 @@ clock.start();
             Container cont=this.getContentPane();
             cont.getWidth();
             cont.setBackground(c);
+                        
+            jPanel1.setBackground(c);
+            
             
             
             jToolBar1.setBackground(c);
