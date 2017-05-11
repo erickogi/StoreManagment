@@ -13,6 +13,7 @@ import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import static java.lang.Thread.sleep;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.logging.Level;
@@ -21,9 +22,13 @@ import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.border.Border;
+import storemanagment.BackUpRestore.Restore;
+import storemanagment.BackUpRestore.backup;
+import storemanagment.Configs.Settings;
 import storemanagment.Give.GiveForm;
 import storemanagment.Recieve.RecieveForm;
 import storemanagment.Transactions.TransactionsForm;
+//import storemanagment.BackRestore.Restore;
 
 /**
  *
@@ -284,6 +289,8 @@ clock.start();
         jMenuItem11 = new javax.swing.JMenuItem();
         jMenuItem16 = new javax.swing.JMenuItem();
         jMenuItem17 = new javax.swing.JMenuItem();
+        jMenu2 = new javax.swing.JMenu();
+        jMenuItem26 = new javax.swing.JMenuItem();
         jMenu6 = new javax.swing.JMenu();
         jMenuItem22 = new javax.swing.JMenuItem();
         jMenuItem23 = new javax.swing.JMenuItem();
@@ -394,9 +401,19 @@ clock.start();
         jMenu1.setText("File");
 
         jMenuItem18.setText("Backup");
+        jMenuItem18.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem18ActionPerformed(evt);
+            }
+        });
         jMenu1.add(jMenuItem18);
 
         jMenuItem19.setText("Restore");
+        jMenuItem19.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem19ActionPerformed(evt);
+            }
+        });
         jMenu1.add(jMenuItem19);
 
         jMenuItem20.setText("Log-Out");
@@ -544,12 +561,34 @@ clock.start();
 
         jMenuBar1.add(jMenu5);
 
+        jMenu2.setText("Returnables ");
+
+        jMenuItem26.setText("View\\Return");
+        jMenuItem26.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem26ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem26);
+
+        jMenuBar1.add(jMenu2);
+
         jMenu6.setText("Settings");
 
         jMenuItem22.setText("System Settings");
+        jMenuItem22.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem22ActionPerformed(evt);
+            }
+        });
         jMenu6.add(jMenuItem22);
 
         jMenuItem23.setText("Admin Settings");
+        jMenuItem23.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem23ActionPerformed(evt);
+            }
+        });
         jMenu6.add(jMenuItem23);
 
         jMenuBar1.add(jMenu6);
@@ -557,9 +596,19 @@ clock.start();
         jMenu7.setText("Help");
 
         jMenuItem24.setText("About");
+        jMenuItem24.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem24ActionPerformed(evt);
+            }
+        });
         jMenu7.add(jMenuItem24);
 
         jMenuItem25.setText("Manual");
+        jMenuItem25.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem25ActionPerformed(evt);
+            }
+        });
         jMenu7.add(jMenuItem25);
 
         jMenuBar1.add(jMenu7);
@@ -669,6 +718,39 @@ clock.start();
          setNewFrameGive("Farm Store");
     }//GEN-LAST:event_jMenuItem15ActionPerformed
 
+    private void jMenuItem18ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem18ActionPerformed
+       backup backUp=new backup();
+       backUp.setVisible(true);
+    }//GEN-LAST:event_jMenuItem18ActionPerformed
+
+    private void jMenuItem19ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem19ActionPerformed
+       Restore restore=new Restore();
+       restore.setVisible(true);
+    }//GEN-LAST:event_jMenuItem19ActionPerformed
+
+    private void jMenuItem24ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem24ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenuItem24ActionPerformed
+
+    private void jMenuItem22ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem22ActionPerformed
+        Settings settings=new Settings();
+        settings.setVisible(true);
+    }//GEN-LAST:event_jMenuItem22ActionPerformed
+
+    private void jMenuItem23ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem23ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenuItem23ActionPerformed
+
+    private void jMenuItem25ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem25ActionPerformed
+      // ArrayList<CartPojo> items=null;
+      //  Printing print=new Printing("11","333",items);
+    }//GEN-LAST:event_jMenuItem25ActionPerformed
+
+    private void jMenuItem26ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem26ActionPerformed
+        loaned ln=new loaned();
+        ln.setVisible(true);
+    }//GEN-LAST:event_jMenuItem26ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -711,6 +793,7 @@ clock.start();
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenu jMenu4;
     private javax.swing.JMenu jMenu5;
@@ -735,6 +818,7 @@ clock.start();
     private javax.swing.JMenuItem jMenuItem23;
     private javax.swing.JMenuItem jMenuItem24;
     private javax.swing.JMenuItem jMenuItem25;
+    private javax.swing.JMenuItem jMenuItem26;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;

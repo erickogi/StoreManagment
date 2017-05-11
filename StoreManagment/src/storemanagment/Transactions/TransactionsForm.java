@@ -17,10 +17,12 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+import storemanagment.CartPojo;
 import storemanagment.Give.GiveForm;
 import storemanagment.ItemsPojo;
 import storemanagment.Keys;
 import storemanagment.Methods;
+import storemanagment.Printing;
 import storemanagment.Recieve.RecieveForm;
 import storemanagment.TransactionsPojo;
 
@@ -201,7 +203,7 @@ Methods methods=new Methods();
                  );
                  break;
              case 2:
-                 
+                 reProduceReceipt();
                  
                  break;
              case 3:
@@ -759,12 +761,53 @@ Methods methods=new Methods();
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+public void reProduceReceipt(){
+    print(ListCartItems(),txt_transaction_receipt.getText()+"  B",txt_officer_in_charge.getText());
+}
+ public ArrayList<CartPojo> ListCartItems() {
+        ArrayList<CartPojo> itemsList = new ArrayList();
+        try {
 
+            Connection con = methods.getConnection();
+
+            Statement st = con.createStatement();
+
+            String searchQuery = "SELECT * FROM " + Keys.KEY_TRANSACTION_TABLE+ " WHERE "+Keys.KEY_TRANSACTION_RECEIPT_GIVEN+" ='"+txt_transaction_receipt.getText()+"'";
+            ResultSet rs = st.executeQuery(searchQuery);
+            while (rs.next()) {
+
+                CartPojo data = new CartPojo(
+                        0, 
+                        rs.getInt(Keys.KEY_ITEM_ID),
+                        rs.getString(Keys.KEY_ITEM_NAME),
+                        "",
+                        rs.getString(Keys.KEY_TRANSACTION_QUANTITY),
+                        rs.getString(Keys.KEY_TRANSACTION_QUANTITY_IN),
+                        ""
+                );
+
+                itemsList.add(data);
+            }
+            st.close();
+            rs.close();
+            con.close();
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+        return itemsList;
+    }
+
+    void print(ArrayList<CartPojo> items, String rNo, String officer) {
+        // ArrayList<CartPojo> itemsoop=null;
+        Printing print = new Printing(rNo, officer, items);
+    }
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         String password = JOptionPane.showInputDialog("Enter Your Password ");
          String user_name = methods.getUserNameByPassword(password);
         if (!"null".equals(user_name)) {
-        //threadExecute(1);
+            if(check()==1){
+        threadExecute(2);
+            }
         }
         else{
              JOptionPane.showMessageDialog(null, "UN-REGISTERD PASSWORD..."
@@ -772,13 +815,21 @@ Methods methods=new Methods();
                     + "FIND ASSISTANCE FROM SYSTEM ADMINISTRATOR");
         }
     }//GEN-LAST:event_jButton3ActionPerformed
-
+int check(){
+    int status=1;
+    if(txt_transaction_id.getText().isEmpty()||txt_transaction_receipt.getText().isEmpty()){
+        status=0;
+    }
+    return status;
+}
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         String password = JOptionPane.showInputDialog("Enter Your Password ");
          String user_name = methods.getUserNameByPassword(password);
 
         if (!"null".equals(user_name)) {
-        threadExecute(1);
+            if(check()==1){
+             threadExecute(1);
+            }
         }
         else{
              JOptionPane.showMessageDialog(null, "UN-REGISTERD PASSWORD..."
@@ -801,8 +852,8 @@ Methods methods=new Methods();
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-       String password = JOptionPane.showInputDialog("Enter Your Password ");
-       threadExecute(2);
+       //String password = JOptionPane.showInputDialog("Enter Your Password ");
+      // threadExecute(2);
        
     }//GEN-LAST:event_jButton4ActionPerformed
 private String getRevertStatus(String transactionId){

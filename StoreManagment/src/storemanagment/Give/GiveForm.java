@@ -20,13 +20,18 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import java.awt.Color;
 import java.awt.Container;
-import java.awt.Image;
 import java.awt.Toolkit;
-import java.awt.image.BufferedImage;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.ButtonGroup;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import storemanagment.CartPojo;
 import storemanagment.ItemsPojo;
 import storemanagment.Keys;
 import storemanagment.Methods;
+import storemanagment.Printing;
 import storemanagment.Recieve.RecieveForm;
 import storemanagment.Transactions.TransactionsForm;
 
@@ -35,71 +40,76 @@ import storemanagment.Transactions.TransactionsForm;
  * @author kimani kogi
  */
 public class GiveForm extends javax.swing.JFrame {
-Methods methods=new Methods();
-private double balanceQuantity = 0.0;
-final String uline = "__________________________________________________________________________________";
+
+    Methods methods = new Methods();
+    private double balanceQuantity = 0.0;
+    final String uline = "__________________________________________________________________________________";
     final String dline = "----------------------------------------------------------------------------------";
     /**
      * Creates new form GiveForm
      */
     private String storeType;
-
+    private String loanType=null;
     public GiveForm(String storeType) {
         this.storeType = storeType;
-    
-         initComponents();
-         this.setTitle(storeType+" -Give Form");
-         setTilteImage();
-         findItems();
-         setCart();
-         jProgressBar1.setVisible(false);
+
+        initComponents();
+        
+        this.setTitle(storeType + " -Give Form");
+        setTilteImage();
+        findItems();
+        setCart();
+        
+        radio();
+        deleteAlCart();
+        jProgressBar1.setVisible(false);
     }
-    
+
     public GiveForm() {
         initComponents();
     }
-         public Color setTilteImage(){
-        Color c=null;
+
+    public Color setTilteImage() {
+        Color c = null;
         try {
             //Methods n=new Methods();
-            
-            String i=methods.setIconImage();
+
+            String i = methods.setIconImage();
             this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource(i)));
-            
-            String col=methods.selectcolor();
-             c=new Color(Integer.parseInt(col));
-           // jPanel1.setBackground(c);
-            Container cont=this.getContentPane();
+
+            String col = methods.selectcolor();
+            c = new Color(Integer.parseInt(col));
+            // jPanel1.setBackground(c);
+            Container cont = this.getContentPane();
             cont.getWidth();
             cont.setBackground(c);
-                       
+
             jPanel1.setBackground(c);
-             jPanel2.setBackground(c);
-              jPanel3.setBackground(c);
-             
-             
-            
-            
+            jPanel2.setBackground(c);
+            jPanel3.setBackground(c);
+
             this.setForeground(c);
         } catch (Exception ex) {
             Logger.getLogger(GiveForm.class.getName()).log(Level.SEVERE, null, ex);
         }
         return c;
-}
-    private void setCart(){
+    }
+
+    private void setCart() {
         txt_cart_area.setText(null);
-         txt_cart_area.append("Item :                            Qty :                            Id  \n"   );
-         txt_cart_area.append(uline +"\n" );
+        txt_cart_area.append("Item :                            Qty :                            Id  \n");
+        txt_cart_area.append(uline + "\n");
 
     }
+
     public ArrayList<ItemsPojo> ListItems(String Id) {
         ArrayList<ItemsPojo> itemsList = new ArrayList();
         try {
 
             Connection con = methods.getConnection();
-            
+
             Statement st = con.createStatement();
-            
+
             String searchQuery = "SELECT * FROM " + Keys.KEY_ITEMS_TABLE + ""
                     + " WHERE CONCAT(" + Keys.KEY_ITEM_ID + "," + Keys.KEY_ITEM_NAME + ") LIKE '%" + Id + "%'  "
                     + "AND " + Keys.KEY_ITEM_TYPE + " = '" + this.storeType + "'";
@@ -143,21 +153,18 @@ final String uline = "__________________________________________________________
 
             row[2] = ((ItemsPojo) data.get(i)).getItem_quantity();
             row[3] = ((ItemsPojo) data.get(i)).getItem_quantity_in();
-          
 
             model.addRow(row);
         }
         this.table.setModel(model);
 
     }
-    
-    
-    
-    void setTransaction(int item_id,String item_name,String transaction_quantity,
-    String transaction_quantity_in,String receipt_no,String officer_in_charge) {
+
+    void setTransaction(int item_id, String item_name, String transaction_quantity,
+            String transaction_quantity_in, String receipt_no, String officer_in_charge) {
 
         String nullValue = "--";
-        
+
         String query = "INSERT INTO transactions_table(" + Keys.KEY_ITEM_ID + "," + Keys.KEY_ITEM_NAME + ", " + Keys.KEY_ITEM_TYPE + ","
                 + "" + Keys.KEY_TRANSACTION_QUANTITY + ","
                 + "" + Keys.KEY_TRANSACTION_TYPE + ","
@@ -165,49 +172,49 @@ final String uline = "__________________________________________________________
                 + "" + Keys.KEY_TRANSACTION_CASH + "," + Keys.KEY_TRANSACTION_RECEIPT_RECIEVED + "," + Keys.KEY_TRANSACTION_RECEIPT_GIVEN + ","
                 + "" + Keys.KEY_TRANSACTION_OFFICER_INCHARGE + "," + Keys.KEY_TRANSACTION_TIME + ")"
                 + " VALUES ('" + item_id + "',"
-                + "'" + item_name+ "',"
+                + "'" + item_name + "',"
                 + "'" + this.storeType + "',"
-                
                 + "'" + transaction_quantity + "',"
-                
-                + "'" + Keys.KEY_TRANSACTION_GIVE+ "',"
-                
+                + "'" + Keys.KEY_TRANSACTION_GIVE + "',"
                 + "'" + transaction_quantity_in + "',"
-                
                 + "'" + this.txt_item_to.getText() + "',"
                 + "'" + nullValue + "',"
-                + "'" + nullValue+ "',"
-               // + "'" + this.txt_item_receipt_no.getText() + "',"
+                + "'" + nullValue + "',"
+                // + "'" + this.txt_item_receipt_no.getText() + "',"
                 + "'" + nullValue + "',"
                 + "'" + receipt_no + "',"
                 + "'" + officer_in_charge + "',now())";
 
         if (methods.executeSQlQueryN(query) == 1) {
-            registerReceiptNo(item_id,item_name, receipt_no);
-        }
-        else{
+            registerReceiptNo(item_id, item_name, receipt_no, true);
+        } else {
             System.out.println("Error setTransaction");
         }
     }
-    
-    
-    
-    void updateExistingItem(String officer_in_charge,String item_new_quantity,
-            int item_id,String item_name,String transaction_quantity,String transaction_quantity_in,String receipt_no) {
-        
+
+    String updateExistingItem(String officer_in_charge, String item_new_quantity,
+            int item_id, String item_name, String transaction_quantity, String transaction_quantity_in, String receipt_no,String loanedtype) {
+
         String query = "UPDATE " + Keys.KEY_ITEMS_TABLE + " SET " + Keys.KEY_ITEM_QUANTITY + "='" + item_new_quantity + "'"
                 + "," + Keys.KEY_ITEM_UPDATED_AT + "= now()"
                 + "WHERE " + Keys.KEY_ITEM_ID + "= '" + item_id + "' ";
 
         if (methods.executeSQlQueryN(query) == 1) {
-          
-           setTransaction(item_id,item_name,transaction_quantity,
-           transaction_quantity_in,receipt_no,officer_in_charge);
-            }
-        else{
+            
+        if(loanedtype.equals(Keys.KEY_RETURNABLE)){
+                toLoaned(String.valueOf(item_id), item_name, transaction_quantity, transaction_quantity_in,
+                officer_in_charge,receipt_no,this.txt_item_to.getText(),this.storeType);
+        }
+            
+            setTransaction(item_id, item_name, transaction_quantity,
+                    transaction_quantity_in, receipt_no, officer_in_charge);
+            
+        
+            
+        } else {
             System.out.println("Error UpdateExistingItem");
         }
-
+        return receipt_no;
     }
 
     boolean checkReceiptNo(String No) {
@@ -236,9 +243,7 @@ final String uline = "__________________________________________________________
             } else {
                 isNewNo = true;
             }
-            
-            
-            
+
             rs.close();
             pst.close();
             con.close();
@@ -247,80 +252,90 @@ final String uline = "__________________________________________________________
         }
         return isNewNo;
     }
-String produce(){
-    
+
+    String produce() {
+
         Random rand = new Random();
         int nr = rand.nextInt(50000) + 1;
         String rNo = String.valueOf(nr);
-      return  ran(rNo);
-}
+        return ran(rNo);
+    }
+
     public String ran(String nr) {
-        
+
         String results = null;
         if (checkReceiptNo(nr) == true) {
             results = nr;
 
-        }
-        else{
+        } else {
             produce();
-            
+
         }
 
         return results;
 
     }
-        public void registerReceiptNo(int item_id,String item_name, String rcNo) {
+
+    public boolean registerReceiptNo(int item_id, String item_name, String rcNo, boolean success) {
         String query = "INSERT INTO " + Keys.KEY_RECEIPT_TABLE + "(" + Keys.KEY_ITEM_NAME + ", " + Keys.KEY_ITEM_ID + ","
                 + "" + Keys.KEY_RECEIPT_NO + "," + Keys.KEY_RECEIPT_TIME + ")"
                 + " VALUES ('" + item_name + "','" + item_id + "','" + rcNo + "',now())";
 
         if (methods.executeSQlQueryN(query) == 1) {
-             deleteCart(item_id);
-             refresh();
-            
-          
+            deleteCart(item_id);
+            refresh();
+
         } else {
-           out.println("Error registerReceipt");
+            out.println("Error registerReceipt");
         }
- 
+        return success;
     }
-        
-        public void deleteCart(int item_id){
-                    String query = "DELETE FROM "+Keys.KEY_CART_TABLE+"  WHERE "+Keys.KEY_ITEM_ID+" = '" +item_id+"'";
-                    if(methods.executeSQlQueryN(query)==1){
-                        
-                    }
-                    else{
-                        System.out.println("Error deleteCart");
-                    }
+
+    public void deleteCart(int item_id) {
+        String query = "DELETE FROM " + Keys.KEY_CART_TABLE + "  WHERE " + Keys.KEY_ITEM_ID + " = '" + item_id + "'";
+        if (methods.executeSQlQueryN(query) == 1) {
+
+        } else {
+            System.out.println("Error deleteCart");
         }
-     public void deleteAllCart(){
-                    //String query = "DELETE FROM "+Keys.KEY_CART_TABLE+"  WHERE "+Keys.KEY_ITEM_ID+" = '" +item_id+"'";
-                    String query = "DELETE FROM "+Keys.KEY_CART_TABLE+" ";
-                    if(methods.executeSQlQueryN(query)==1){
-                        JOptionPane.showMessageDialog(null, "Done");
-                    }
-                    else{
-                        System.out.println("Error deleteCart");
-                    }
+    }
+
+    public void deleteAllCart() {
+        //String query = "DELETE FROM "+Keys.KEY_CART_TABLE+"  WHERE "+Keys.KEY_ITEM_ID+" = '" +item_id+"'";
+        String query = "DELETE FROM " + Keys.KEY_CART_TABLE + " ";
+        if (methods.executeSQlQueryN(query) == 1) {
+            JOptionPane.showMessageDialog(null, "Done");
+        } else {
+            System.out.println("Error deleteCart");
         }
+    }
+    public void deleteAlCart() {
+        //String query = "DELETE FROM "+Keys.KEY_CART_TABLE+"  WHERE "+Keys.KEY_ITEM_ID+" = '" +item_id+"'";
+        String query = "DELETE FROM " + Keys.KEY_CART_TABLE + " ";
+        if (methods.executeSQlQueryN(query) == 1) {
+            JOptionPane.showMessageDialog(null, "READY");
+        } else {
+            System.out.println("Error deleteCart");
+        }
+    }
     public ArrayList<CartPojo> ListCartItems() {
         ArrayList<CartPojo> itemsList = new ArrayList();
         try {
 
             Connection con = methods.getConnection();
-            
+
             Statement st = con.createStatement();
-            
+
             String searchQuery = "SELECT * FROM " + Keys.KEY_CART_TABLE + " ";
             ResultSet rs = st.executeQuery(searchQuery);
             while (rs.next()) {
 
                 CartPojo data = new CartPojo(
                         rs.getInt(Keys.KEY_CART_ID), rs.getInt(Keys.KEY_ITEM_ID),
-                        rs.getString(Keys.KEY_ITEM_NAME), rs.getString(Keys.KEY_ITEM_QUANTITY), 
+                        rs.getString(Keys.KEY_ITEM_NAME), rs.getString(Keys.KEY_ITEM_QUANTITY),
                         rs.getString(Keys.KEY_TRANSACTION_QUANTITY),
-                        rs.getString(Keys.KEY_TRANSACTION_QUANTITY_IN)
+                        rs.getString(Keys.KEY_TRANSACTION_QUANTITY_IN),
+                        rs.getString(Keys.KEY_CART_LOANEDTYPE)
                 );
 
                 itemsList.add(data);
@@ -334,8 +349,8 @@ String produce(){
         return itemsList;
     }
 
-    
-    
+    String choice;
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -357,6 +372,8 @@ String produce(){
         jLabel5 = new javax.swing.JLabel();
         txt_item_quantity = new javax.swing.JTextField();
         txt_in = new javax.swing.JLabel();
+        jRadioButton1 = new javax.swing.JRadioButton();
+        jRadioButton2 = new javax.swing.JRadioButton();
         jPanel2 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
@@ -433,6 +450,10 @@ String produce(){
 
         txt_in.setText("IN");
 
+        jRadioButton1.setText("RETURNABLE");
+
+        jRadioButton2.setText("NON-RETURNABLE");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -440,29 +461,38 @@ String produce(){
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(txt_item_remove)
-                            .addComponent(txt_item_name))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(txt_item_id)
-                            .addComponent(txt_item_quantity, javax.swing.GroupLayout.DEFAULT_SIZE, 151, Short.MAX_VALUE))
-                        .addContainerGap())
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 102, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 120, Short.MAX_VALUE)
                         .addComponent(jLabel3)
                         .addGap(123, 123, 123))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel4)
                         .addGap(88, 88, 88)
                         .addComponent(jLabel5)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(txt_in)
-                .addGap(164, 164, 164))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(txt_in))
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGap(10, 10, 10)
+                                        .addComponent(jRadioButton1)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                .addGap(61, 61, 61)
+                                .addComponent(jRadioButton2))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(txt_item_remove)
+                                    .addComponent(txt_item_name))
+                                .addGap(18, 18, 18)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(txt_item_id)
+                                    .addComponent(txt_item_quantity, javax.swing.GroupLayout.DEFAULT_SIZE, 151, Short.MAX_VALUE))))
+                        .addContainerGap())))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -484,8 +514,14 @@ String produce(){
                     .addComponent(txt_item_remove, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txt_item_quantity, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txt_in)
-                .addGap(23, 23, 23))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(txt_in)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jRadioButton1))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addComponent(jRadioButton2)
+                        .addContainerGap())))
         );
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("ACTIONS"));
@@ -518,7 +554,7 @@ String produce(){
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, 159, Short.MAX_VALUE))
+                        .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, 177, Short.MAX_VALUE))
                     .addComponent(txt_item_to, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addContainerGap()
@@ -533,8 +569,8 @@ String produce(){
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel7)
                     .addComponent(jProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(txt_item_to, javax.swing.GroupLayout.DEFAULT_SIZE, 31, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addComponent(txt_item_to, javax.swing.GroupLayout.DEFAULT_SIZE, 35, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
@@ -633,7 +669,7 @@ String produce(){
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 691, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 673, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(txt_table_search, javax.swing.GroupLayout.PREFERRED_SIZE, 245, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -648,108 +684,171 @@ String produce(){
                         .addContainerGap())
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 288, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(30, 30, 30))))
+                        .addGap(36, 36, 36))))
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(txt_table_search, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel1))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 505, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txt_table_search, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 505, Short.MAX_VALUE)
                 .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
- public void threadExecute(){
- Thread log=new Thread(){
- public void run(){
-    
-    try{
-        jProgressBar1.setVisible(true);
-        jProgressBar1.setBorderPainted(true);
-        jProgressBar1.setIndeterminate(true);
-       String password = JOptionPane.showInputDialog("Enter Your Password ");
-        String user_name = methods.getUserNameByPassword(password);
-        String rNo=produce();
-        if (!"null".equals(user_name)) {
-         ArrayList<CartPojo> cartData=  ListCartItems() ;
-         for(int count=0;count<cartData.size();count++){
-          updateExistingItem(user_name,
-            ((CartPojo) cartData.get(count)).getItem_new_quantity(),
-            ((CartPojo) cartData.get(count)).getItem_id(),
-            ((CartPojo) cartData.get(count)).getItem_name(),
-            ((CartPojo) cartData.get(count)).getTransaction_quantity(),
-            ((CartPojo) cartData.get(count)).getTransaction_quantity_in(),
+ public void threadExecute() {
+        Thread log = new Thread() {
+            public void run() {
+
+                try {
+                    jProgressBar1.setVisible(true);
+                    jProgressBar1.setBorderPainted(true);
+                    jProgressBar1.setIndeterminate(true);
+                    String password = JOptionPane.showInputDialog("Enter Your Password ");
+                    String user_name = methods.getUserNameByPassword(password);
+
+
+
+                   
+//                    button1.addActionListener(new ActionListener() {
+//                        @Override
+//                        public void actionPerformed(ActionEvent e) {
+//                            choice = "";
+//                            //  transact(user_name);
+//
+//                        }
+//                    });
+//                    button2.addActionListener(new ActionListener() {
+//                        @Override
+//                        public void actionPerformed(ActionEvent e) {
+//
+//                            //  transact(user_name);
+//                        }
+//                    });
+
+                    transact(user_name);
+                } catch (Exception b) {
+                    System.out.println("Error");
+                }
+            }
+        };
+        log.start();
+    }
+
+    public void toLoaned(String item_id, String item_name, String transaction_quantity, String transaction_quantity_in,
+            String officer,String receipt_no,String to,String type) {
+
+        String query = "INSERT INTO " + Keys.KEY_LOANED_TABLE + "("
+                + "" + Keys.KEY_ITEM_ID + ", "
+                + "" + Keys.KEY_ITEM_NAME + ","
+                + "" + Keys.KEY_ITEM_TYPE + ","
+                + "" + Keys.KEY_ITEM_QUANTITY + ","
+                + "" + Keys.KEY_ITEM_QUANTITY_IN + ","
+                + "" + Keys.KEY_TRANSACTION_TO + ","
+                + "" + Keys.KEY_TRANSACTION_RECEIPT_GIVEN + ","
+                + "" + Keys.KEY_TRANSACTION_OFFICER_INCHARGE + ","
+                + "" + Keys.KEY_TRANSACTION_TIME + ")"
+                
+                + " VALUES ("
+                + "'" + item_id + "',"
+                + "'" + item_name + "',"
+                + "'" + type + "',"
+                + "'" + transaction_quantity + "',"
+                + "'" + transaction_quantity_in + "',"
+                
+                + "'" + to + "',"
+                + "'" + receipt_no + "',"
+                + "'" + officer + "'"
+                
+                 
+                
+                + ",now())";
+         if (methods.executeSQlQueryN(query) == 1) {
+
             
-            rNo);
-         
-         
-         
-         }
-        // txt_item_to.setText("");
-        // txt_item_to.setText("");
-         setCart();
-         jProgressBar1.setIndeterminate(false);
-         jProgressBar1.setVisible(false);
-         
-        }else {
+        }
+    }
+
+    void print(ArrayList<CartPojo> items, String rNo, String officer) {
+        // ArrayList<CartPojo> itemsoop=null;
+        Printing print = new Printing(rNo, officer, items);
+    }
+
+    public void transact(String user_name) {
+        if (!"null".equals(user_name)) {
+            String rNo = produce();
+            ArrayList<CartPojo> cartData = ListCartItems();
+            if (cartData.size() > 1 || !cartData.isEmpty()) {
+                String receiptNo = "null";
+                for (int count = 0; count < cartData.size(); count++) {
+                    receiptNo = updateExistingItem(user_name,
+                            ((CartPojo) cartData.get(count)).getItem_new_quantity(),
+                            ((CartPojo) cartData.get(count)).getItem_id(),
+                            ((CartPojo) cartData.get(count)).getItem_name(),
+                            ((CartPojo) cartData.get(count)).getTransaction_quantity(),
+                            ((CartPojo) cartData.get(count)).getTransaction_quantity_in(),
+                            
+                            rNo,
+                            ((CartPojo) cartData.get(count)).getLoanedtype());
+
+                }
+                print(cartData, receiptNo, user_name);
+            } else {
+                jProgressBar1.setIndeterminate(false);
+                jProgressBar1.setVisible(false);
+                JOptionPane.showMessageDialog(null, "Cart is Empty.."
+                );
+            }
+            // txt_item_to.setText("");
+            // txt_item_to.setText("");
+            setCart();
+            jProgressBar1.setIndeterminate(false);
+            jProgressBar1.setVisible(false);
+
+        } else {
             jProgressBar1.setIndeterminate(false);
             jProgressBar1.setVisible(false);
             JOptionPane.showMessageDialog(null, "UN-REGISTERD PASSWORD..."
                     + "\n"
                     + "FIND ASSISTANCE FROM SYSTEM ADMINISTRATOR");
         }
-        
-        
-      
     }
-      catch(Exception b){
-         System.out.println("Error");
-      }
-} 
-      }   ;  
-      log.start();
-  }
- 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-if(txt_item_to.getText().isEmpty()){
-    JOptionPane.showMessageDialog(null,"Enter receipient");
-}
-else{
-        
-        threadExecute();
-}
-        
+        if (txt_item_to.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Enter receipient");
+        } else {
+
+            threadExecute();
+        }
+
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
-        TransactionsForm transactionsForm=new TransactionsForm(storeType);
+        TransactionsForm transactionsForm = new TransactionsForm(storeType);
         transactionsForm.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        RecieveForm recieveForm=new RecieveForm(storeType);
+        RecieveForm recieveForm = new RecieveForm(storeType);
         recieveForm.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void txt_table_searchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_table_searchKeyReleased
-    refresh();     // TODO add your handling code here:
+        refresh();     // TODO add your handling code here:
     }//GEN-LAST:event_txt_table_searchKeyReleased
 
     private void tableKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tableKeyReleased
@@ -757,86 +856,94 @@ else{
     }//GEN-LAST:event_tableKeyReleased
 
     private void tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableMouseClicked
-        balanceQuantity=0.0;
+        balanceQuantity = 0.0;
+         loanType="null";
+         jRadioButton1.setSelected(false);
+         jRadioButton2.setSelected(false);
+        radiog.clearSelection();
         int i = this.table.getSelectedRow();
 
         TableModel model = this.table.getModel();
 
-        
         this.txt_item_id.setText(model.getValueAt(i, 0).toString());
 
         this.txt_item_name.setText(model.getValueAt(i, 1).toString());
 
         this.txt_item_quantity.setText(model.getValueAt(i, 2).toString());
-        
+
         this.txt_in.setText(model.getValueAt(i, 3).toString());
 
         //this.txt_item_.setText(model.getValueAt(i, 3).toString());
-
-        balanceQuantity = Double.valueOf(txt_item_quantity.getText());        
+        balanceQuantity = Double.valueOf(txt_item_quantity.getText());
     }//GEN-LAST:event_tableMouseClicked
 
     private void txt_item_removeKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_item_removeKeyReleased
         reduceQuantity();
     }//GEN-LAST:event_txt_item_removeKeyReleased
-private void clearAll() {
-          txt_item_remove.setText("");
+    private void clearAll() {
+        radiog.clearSelection();
+       // txt_transaction_to.
+        txt_item_remove.setText("");
         txt_item_id.setText("");
         txt_item_name.setText("");
         txt_item_quantity.setText("");
         //txt_item_to.setText("");
         txt_in.setText("IN");
         txt_table_search.setText("");
-}
-public void insertToCart(){
-    String query = "INSERT INTO " + Keys.KEY_CART_TABLE + "(" + Keys.KEY_ITEM_ID + ", "
-                  + "" + Keys.KEY_ITEM_NAME + ","
-                   + "" + Keys.KEY_ITEM_QUANTITY+ ","
-                + "" + Keys.KEY_TRANSACTION_QUANTITY + "," + Keys.KEY_TRANSACTION_QUANTITY_IN + ")"
-                + " VALUES ('" + this.txt_item_id.getText() + "','" +this.txt_item_name.getText() + "','" +this.txt_item_quantity.getText() + "',"
-                  + "'" + this.txt_item_remove.getText() + "','"+txt_in.getText()+"')";
+    }
 
-        if (methods.executeSQlQuery(query, "ADDED TO CART") == 1) {
-            
-             txt_cart_area.append(""+this.txt_item_name.getText()+" \n                           "+this.txt_item_remove.getText()+""
-                    + "                            "+this.txt_item_id.getText()+"  \n" );
-             
-             
-             
-             
-             
-            
-             clearAll();
-     
+    public void insertToCart() {
+        String  query = "INSERT INTO " + Keys.KEY_CART_TABLE + "("
+                + "" + Keys.KEY_ITEM_ID + ", "
+                + "" + Keys.KEY_ITEM_NAME + ","
+                + "" + Keys.KEY_ITEM_QUANTITY + ","
+                + "" + Keys.KEY_TRANSACTION_QUANTITY + ","
+                + "" + Keys.KEY_TRANSACTION_QUANTITY_IN + ","
+                + Keys.KEY_CART_LOANEDTYPE + ")"
+                + " VALUES ("
+                + "'" + this.txt_item_id.getText() + "',"
+                + "'" + this.txt_item_name.getText() + "',"
+                + "'" + this.txt_item_quantity.getText() + "',"
+                + "'" + this.txt_item_remove.getText() + "',"
+                + "'" + txt_in.getText() + "',"
+                + "'"+this.loanType+"')";
+
+        if (methods.executeSQlQueryN(query) == 1) {
+
+            txt_cart_area.append("" + this.txt_item_name.getText() + " \n                           " + this.txt_item_remove.getText() + ""
+                    + "                            " + this.txt_item_id.getText() + "  \n");
+
+            clearAll();
+
         } else {
-               JOptionPane.showMessageDialog(null, "ERROR !!! \n Possible Duplicate Items");
-        }   
-}
+            JOptionPane.showMessageDialog(null, "ERROR !!! \n Possible Duplicate Items");
+        }
+    }
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-             if(txt_item_remove.getText().isEmpty()||txt_item_id.getText().isEmpty()) {
-                 JOptionPane.showMessageDialog(null, "Empty fields detected");
-             }
-             else{
-             insertToCart();
-             }
+        if (txt_item_remove.getText().isEmpty() || txt_item_id.getText().isEmpty()
+            ||  loanType.equals(null)||loanType.equals("null")
+                ) {
+            JOptionPane.showMessageDialog(null, "Empty fields detected");
+        } else {
+            insertToCart();
+        }
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
-        Calc n=new Calc();
+        Calc n = new Calc();
     }//GEN-LAST:event_jMenuItem5ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-     clearAll();    
-     deleteAllCart();
+        clearAll();
+        deleteAllCart();
     }//GEN-LAST:event_jButton1ActionPerformed
- private void reduceQuantity() {
+    private void reduceQuantity() {
 
         try {
             double newBalanceQuantity = (balanceQuantity - Double.valueOf(txt_item_remove.getText()));
-            if(newBalanceQuantity>=0.0){
-            this.txt_item_quantity.setText(String.valueOf(newBalanceQuantity));
-            }
-            else{
+            if (newBalanceQuantity >= 0.0) {
+                this.txt_item_quantity.setText(String.valueOf(newBalanceQuantity));
+            } else {
                 this.txt_item_quantity.setText("0.0");
                 JOptionPane.showMessageDialog(null, "Limit Execeded");
                 txt_item_remove.setText(String.valueOf(balanceQuantity));
@@ -847,6 +954,7 @@ public void insertToCart(){
         }
 
     }
+
     /**
      * @param args the command line arguments
      */
@@ -903,6 +1011,8 @@ public void insertToCart(){
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JProgressBar jProgressBar1;
+    private javax.swing.JRadioButton jRadioButton1;
+    private javax.swing.JRadioButton jRadioButton2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable table;
@@ -915,4 +1025,30 @@ public void insertToCart(){
     private javax.swing.JTextField txt_item_to;
     private javax.swing.JTextField txt_table_search;
     // End of variables declaration//GEN-END:variables
+ ButtonGroup radiog =new ButtonGroup();
+
+    public void radio(){
+ radiog.add(jRadioButton1);
+ radiog.add(jRadioButton2);
+ //jRadioButton1.setSelected(true);
+                    jRadioButton1.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            loanType=Keys.KEY_RETURNABLE;
+                            //  transact(user_name);
+
+                        }
+                    });
+                    jRadioButton2.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                             loanType=Keys.KEY_NON_RETURNABLE;
+                            //  transact(user_name);
+                        }
+                    });
+
+
+}
+
+
 }

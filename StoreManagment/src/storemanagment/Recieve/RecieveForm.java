@@ -27,6 +27,8 @@ import storemanagment.Give.GiveForm;
 import storemanagment.ItemsPojo;
 import storemanagment.Keys;
 import storemanagment.Methods;
+import storemanagment.Printing;
+import storemanagment.ReceivedCart;
 import storemanagment.Transactions.TransactionsForm;
 import storemanagment.TransactionsPojo;
 
@@ -39,10 +41,13 @@ public class RecieveForm extends javax.swing.JFrame {
     TransactionsPojo transactionsPojo;
     ItemsPojo itemPojo;
     Methods methods = new Methods();
+    
+    private double totalC=0.0;
 
     ButtonGroup radiog = new ButtonGroup();
     private boolean newItem = false;
     private double balanceQuantity = 0.0;
+    private String transactionType=Keys.KEY_TRANSACTION_RECEIVE_EXISTING;
 
 //     txt_item_add;
 //     txt_item_cash;
@@ -57,7 +62,12 @@ public class RecieveForm extends javax.swing.JFrame {
      * Creates new form RecieveForm
      */
     private String storeType;
+    private void setCart() {
+        txt_cart_area.setText(null);
+        txt_cart_area.append("Item :                            Qty :                            Id  \n");
+        txt_cart_area.append(uline + "\n");
 
+    }
     public RecieveForm(String storeType) {
         this.storeType = storeType;
         initComponents();
@@ -67,7 +77,9 @@ public class RecieveForm extends javax.swing.JFrame {
         radiog.add(jRadioButton_new_item);
         jRadioButton_existing_item.setSelected(true);
         findItems();
+        setCart();
          setTilteImage();
+         deleteAllCart();
         jRadioButton_existing_item.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -76,6 +88,7 @@ public class RecieveForm extends javax.swing.JFrame {
                 txt_quantity_in.setEditable(false);
                 txt_item_add.setEditable(true);
                 newItem = false;
+                transactionType=Keys.KEY_TRANSACTION_RECEIVE_EXISTING;
 
             }
         });
@@ -88,14 +101,14 @@ public class RecieveForm extends javax.swing.JFrame {
                 txt_item_add.setEditable(false);
                 txt_item_id.setText("");
                 newItem = true;
-
+                transactionType=Keys.KEY_TRANSACTION_RECIEVE_NEW;
             }
         });
     }
 
     public RecieveForm() {
         initComponents();
-
+        txt_item_cash.setText("0");
         radiog.add(jRadioButton_existing_item);
         radiog.add(jRadioButton_new_item);
         jRadioButton_existing_item.setSelected(true);
@@ -153,24 +166,51 @@ public class RecieveForm extends javax.swing.JFrame {
         boolean okay = false;
         if (newItem) {
             if (txt_item_name.getText().isEmpty()
-                    || txt_item_quantity.getText().isEmpty() || txt_quantity_in.getText().isEmpty()
-                    || txt_item_cash.getText().isEmpty()
-                    || txt_item_receipt_no.getText().isEmpty() || txt_item_from.getText().isEmpty()) {
+                    || txt_item_quantity.getText().isEmpty()
+                    || txt_quantity_in.getText().isEmpty()
+                    || txt_item_cash.getText().isEmpty())
+                   // || txt_item_receipt_no.getText().isEmpty()
+                   // || txt_item_from.getText().isEmpty())
+                    {
 
                 JOptionPane.showMessageDialog(null, "Fill All Details");
 
             } else {
                 okay = true;
             }
-        } else if (txt_item_name.getText().isEmpty() || txt_item_id.getText().isEmpty()
-                || txt_item_quantity.getText().isEmpty() || txt_quantity_in.getText().isEmpty()
-                || txt_item_cash.getText().isEmpty() || txt_item_add.getText().isEmpty()
-                || txt_item_receipt_no.getText().isEmpty() || txt_item_from.getText().isEmpty()) {
+        } else if (txt_item_name.getText().isEmpty() 
+                || txt_item_id.getText().isEmpty()
+                || txt_item_quantity.getText().isEmpty() 
+                || txt_quantity_in.getText().isEmpty()
+                || txt_item_cash.getText().isEmpty()
+                || txt_item_add.getText().isEmpty())
+               // || txt_item_receipt_no.getText().isEmpty()
+               // || txt_item_from.getText().isEmpty()) 
+        {
             JOptionPane.showMessageDialog(null, "Fill All Details");
         } else {
             okay = true;
         }
         return okay;
+    }
+   boolean checkLower(){
+         boolean okay = false;
+         
+            if (
+                     txt_item_receipt_no.getText().isEmpty()
+                    
+                    || txt_item_from.getText().isEmpty())
+                
+                {
+
+                JOptionPane.showMessageDialog(null, "Fill All Details");
+
+            } else {
+                okay = true;
+            }
+         
+           return okay;
+         
     }
 
     void progressBarTrue() {
@@ -185,62 +225,154 @@ public class RecieveForm extends javax.swing.JFrame {
         jProgressBar1.setIndeterminate(false);
     }
 
-    void insertNewItem(String officer_in_charge) {
+    void insertNewItem(
+            String item_name,
+            String item_type,
+            String item_quantity,
+            String transaction_quantity,
+            String item_quantity_in,
+            String item_cash,
+            int item_id,
+            String officer_in_charge,
+            String rNo,
+            String from,
+            String receipt_in     
+    ) {
 
-        progressBarTrue();
-        String query = "INSERT INTO items_table(" + Keys.KEY_ITEM_NAME + ", " + Keys.KEY_ITEM_TYPE + "," + Keys.KEY_ITEM_QUANTITY + ","
-                + "" + Keys.KEY_ITEM_QUANTITY_IN + "," + Keys.KEY_ITEM_UPDATED_AT + ")"
-                + " VALUES ('" + this.txt_item_name.getText() + "','" + this.storeType + "','" + this.txt_item_quantity.getText() + "',"
-                + "'" + this.txt_quantity_in.getText() + "',now())";
+        
+        
+       
+            
+            
+        
+        String query = "INSERT INTO items_table("
+                + "" + Keys.KEY_ITEM_NAME + ", "
+                + "" + Keys.KEY_ITEM_TYPE + ","
+                + "" + Keys.KEY_ITEM_QUANTITY + ","
+                + "" + Keys.KEY_ITEM_QUANTITY_IN + ","
+                + "" + Keys.KEY_ITEM_UPDATED_AT + ")"
+                + " VALUES ("
+                + "'" + item_name + "',"
+                + "'" + storeType + "',"
+                + "'" + item_quantity + "',"
+                + "'" + item_quantity_in+ "',"
+                + "now())";
 
         if (methods.executeSQlQueryN(query) == 1) {
-
-            setTransaction(officer_in_charge, txt_item_quantity.getText(), getItemIdByName(this.txt_item_name.getText()), Keys.KEY_TRANSACTION_RECIEVE_NEW);
+             int id=getItemIdByName(item_name);
+            setTransaction(
+                    item_name,
+                    item_type,
+                    item_quantity,
+                    transaction_quantity,
+                    item_quantity_in,
+                    item_cash,
+                    id,
+                    officer_in_charge,
+                    rNo,
+                    from,
+                    receipt_in,
+                    Keys.KEY_TRANSACTION_RECIEVE_NEW
+            );
         } else {
 
         }
+        
 
     }
 
-    void setTransaction(String officer_in_charge, String quantity, int item_id, String transactionType) {
-
+    void setTransaction(
+            String item_name,
+            String item_type,
+            String item_quantity,
+            String transaction_quantity,
+            String item_quantity_in,
+            String item_cash,
+            int item_id,
+            String officer_in_charge,
+            String rNo,
+            String from,
+            String receipt_in,
+            String transactiontype) {
+            //int id=getItemIdByName(item_name);
         String nullValue = "--";
-        String randomReceiptNo = "rcpt";
-        String query = "INSERT INTO transactions_table(" + Keys.KEY_ITEM_ID + "," + Keys.KEY_ITEM_NAME + ", " + Keys.KEY_ITEM_TYPE + ","
+        
+        String query = "INSERT INTO transactions_table("
+                + "" + Keys.KEY_ITEM_ID + ","
+                + "" + Keys.KEY_ITEM_NAME + ","
+                + " " + Keys.KEY_ITEM_TYPE + ","
                 + "" + Keys.KEY_TRANSACTION_QUANTITY + ","
                 + "" + Keys.KEY_TRANSACTION_TYPE + ","
-                + "" + Keys.KEY_TRANSACTION_QUANTITY_IN + "," + Keys.KEY_TRANSACTION_TO + "," + Keys.KEY_TRANSACTION_FROM + ","
-                + "" + Keys.KEY_TRANSACTION_CASH + "," + Keys.KEY_TRANSACTION_RECEIPT_RECIEVED + "," + Keys.KEY_TRANSACTION_RECEIPT_GIVEN + ","
-                + "" + Keys.KEY_TRANSACTION_OFFICER_INCHARGE + "," + Keys.KEY_TRANSACTION_TIME + ")"
-                + " VALUES ('" + item_id + "','" + this.txt_item_name.getText() + "','" + this.storeType + "',"
-                + "'" + quantity + "',"
-                + "'" + transactionType + "',"
-                + "'" + this.txt_quantity_in.getText() + "',"
+                + "" + Keys.KEY_TRANSACTION_QUANTITY_IN + ","
+                + "" + Keys.KEY_TRANSACTION_TO + ","
+                + "" + Keys.KEY_TRANSACTION_FROM + ","
+                + "" + Keys.KEY_TRANSACTION_CASH + ","
+                + "" + Keys.KEY_TRANSACTION_RECEIPT_RECIEVED + ","
+                + "" + Keys.KEY_TRANSACTION_RECEIPT_GIVEN + ","
+                + "" + Keys.KEY_TRANSACTION_OFFICER_INCHARGE + ","
+                + "" + Keys.KEY_TRANSACTION_TIME + ")"
+                + " VALUES ("
+                + "'" + item_id + "',"
+                + "'" + item_name + "',"
+                + "'" + this.storeType + "',"
+                + "'" + transaction_quantity + "',"
+                + "'" + transactiontype + "',"
+                + "'" + item_quantity_in + "',"
                 + "'" + nullValue + "',"
-                + "'" + this.txt_item_from.getText() + "',"
-                + "'" + this.txt_item_cash.getText() + "',"
-                + "'" + this.txt_item_receipt_no.getText() + "',"
-                + "'" + nullValue + "',"
+                + "'" + from + "',"
+                + "'" + item_cash + "',"
+                + "'" + receipt_in + "',"
+                + "'" + rNo + "',"
                 + "'" + officer_in_charge + "',now())";
 
         if (methods.executeSQlQueryN(query) == 1) {
-            registerReceiptNo(item_id, txt_item_receipt_no.getText());
+            if(transactiontype.equals( Keys.KEY_TRANSACTION_RECEIVE_EXISTING)){
+            registerReceiptNo(item_id, rNo);
+            }
         }
     }
 
-    void updateExistingItem(String officer_in_charge) {
-        progressBarTrue();
-        String query = "UPDATE " + Keys.KEY_ITEMS_TABLE + " SET " + Keys.KEY_ITEM_QUANTITY + "='" + this.txt_item_quantity.getText() + "'"
+    void updateExistingItem(
+            String item_name,
+            String item_type,
+            String item_quantity,
+            String transaction_quantity,
+            String item_quantity_in,
+            String item_cash,
+            int item_id,
+            String officer_in_charge,
+            String rNo,
+            String from,
+            String receipt_in 
+    ) {
+
+        String query = "UPDATE " + Keys.KEY_ITEMS_TABLE + " "
+                + "SET " + Keys.KEY_ITEM_QUANTITY + "='" + item_quantity + "'"
+                
                 + "," + Keys.KEY_ITEM_UPDATED_AT + "= now() "
-                + "WHERE " + Keys.KEY_ITEM_ID + "= '" + this.txt_item_id.getText() + "' ";
+                
+                + "WHERE " + Keys.KEY_ITEM_ID + "= '" + item_id + "' ";
 
         if (methods.executeSQlQueryN(query) == 1) {
-            setTransaction(officer_in_charge, txt_item_add.getText(), Integer.valueOf(this.txt_item_id.getText()), Keys.KEY_TRANSACTION_RECEIVE_EXISTING);
+            setTransaction(
+                     item_name,
+                    item_type,
+                    item_quantity,
+                    transaction_quantity,
+                    item_quantity_in,
+                    item_cash,
+                    item_id,
+                    officer_in_charge,
+                    rNo,
+                    from,
+                    receipt_in,
+                    
+                    Keys.KEY_TRANSACTION_RECEIVE_EXISTING);
         }
 
     }
 
-    boolean checkReceiptNo(String No) {
+ boolean checkReceiptNo(String No) {
         boolean isNewNo = false;
         try {
             String stru = No;
@@ -261,31 +393,44 @@ public class RecieveForm extends javax.swing.JFrame {
             if (rs.next()) {
 
                 isNewNo = false;
-                ran();
+                //ran();
 
             } else {
                 isNewNo = true;
             }
+
+            rs.close();
+            pst.close();
+            con.close();
         } catch (SQLException ex) {
             Logger.getLogger(RecieveForm.class.getName()).log(Level.SEVERE, null, ex);
         }
         return isNewNo;
     }
 
-    public String ran() {
-        String results = null;
+    String produce() {
+
         Random rand = new Random();
         int nr = rand.nextInt(50000) + 1;
         String rNo = String.valueOf(nr);
+        return ran(rNo);
+    }
 
-        while (checkReceiptNo(String.valueOf(nr)) == true) {
-            results = rNo;
+    public String ran(String nr) {
+
+        String results = null;
+        if (checkReceiptNo(nr) == true) {
+            results = nr;
+
+        } else {
+            produce();
 
         }
 
         return results;
 
     }
+
 
     public int getItemIdByName(String itemName) {
         int userName = 0;
@@ -316,11 +461,10 @@ public class RecieveForm extends javax.swing.JFrame {
                 + "" + Keys.KEY_RECEIPT_NO + "," + Keys.KEY_RECEIPT_TIME + ")"
                 + " VALUES ('" + this.txt_item_name.getText() + "','" + item_id + "','" + rcNo + "',now())";
 
-        if (methods.executeSQlQuery(query, "INSERTED") == 1) {
-
-            clearAll();
-            progressBarFalse();
-            refresh();
+        if (methods.executeSQlQueryN(query) == 1) {
+            deleteCart(item_id);
+            //clearTop();
+            
         } else {
 
         }
@@ -345,7 +489,27 @@ public class RecieveForm extends javax.swing.JFrame {
         txt_item_add.setEditable(true);
         newItem = false;
         balanceQuantity = 0.0;
-
+        totalC=0.0;
+        txt_cart_area.setText("");
+    }
+    void clearTop(){
+        txt_item_add.setText("");
+        txt_item_cash.setText("");
+        
+        txt_item_id.setText("");
+        txt_item_name.setText("");
+        txt_item_quantity.setText("");
+        
+        txt_quantity_in.setText("");
+        txt_table_search.setText("");
+        
+        jRadioButton_existing_item.setSelected(true);
+        txt_item_name.setEditable(false);
+        txt_item_quantity.setEditable(false);
+        txt_quantity_in.setEditable(false);
+        txt_item_add.setEditable(true);
+        newItem = false;
+        balanceQuantity = 0.0;
     }
 
     public ArrayList<ItemsPojo> ListItems(String Id) {
@@ -428,22 +592,28 @@ public class RecieveForm extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         txt_item_add = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
-        txt_item_from = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
         txt_item_cash = new javax.swing.JTextField();
-        jLabel9 = new javax.swing.JLabel();
-        txt_item_receipt_no = new javax.swing.JTextField();
         jRadioButton_new_item = new javax.swing.JRadioButton();
         jRadioButton_existing_item = new javax.swing.JRadioButton();
-        jProgressBar1 = new javax.swing.JProgressBar();
+        jButton3 = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         table = new javax.swing.JTable();
         jPanel3 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
+        txt_item_receipt_no = new javax.swing.JTextField();
+        jProgressBar1 = new javax.swing.JProgressBar();
+        jLabel9 = new javax.swing.JLabel();
+        txt_item_from = new javax.swing.JTextField();
+        jLabel7 = new javax.swing.JLabel();
+        txt_total_cash = new javax.swing.JTextField();
+        jLabel10 = new javax.swing.JLabel();
         txt_table_search = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
+        jPanel4 = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        txt_cart_area = new javax.swing.JTextArea();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem3 = new javax.swing.JMenuItem();
@@ -487,18 +657,25 @@ public class RecieveForm extends javax.swing.JFrame {
         jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel6.setText("ADD");
 
-        jLabel7.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel7.setText("FROM");
-
         jLabel8.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel8.setText("CASH");
 
-        jLabel9.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel9.setText("RECIEPT NO");
+        txt_item_cash.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txt_item_cashKeyReleased(evt);
+            }
+        });
 
         jRadioButton_new_item.setText("NEW");
 
         jRadioButton_existing_item.setText("EXISTING");
+
+        jButton3.setText("ADD");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -508,44 +685,38 @@ public class RecieveForm extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(txt_item_from, javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
-                                    .addComponent(jLabel6)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(txt_item_add, javax.swing.GroupLayout.DEFAULT_SIZE, 103, Short.MAX_VALUE))
-                                .addComponent(txt_item_quantity, javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.LEADING))
-                            .addComponent(jLabel9)
-                            .addComponent(jLabel7))
-                        .addGap(18, 18, 18)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(txt_item_quantity)
+                            .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel6)
+                            .addComponent(txt_item_add))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 73, Short.MAX_VALUE)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(txt_quantity_in)
-                            .addComponent(txt_item_cash)
                             .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel8)
-                                    .addComponent(jLabel5))
-                                .addGap(0, 0, Short.MAX_VALUE)))
+                                    .addComponent(jLabel5)
+                                    .addComponent(jLabel8))
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(txt_item_cash, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addContainerGap())
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(txt_item_name, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txt_item_receipt_no, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel2)
                             .addComponent(jRadioButton_new_item))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel3)
-                                    .addComponent(jRadioButton_existing_item)
-                                    .addComponent(txt_item_id, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(0, 11, Short.MAX_VALUE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))))
+                            .addComponent(jLabel3)
+                            .addComponent(jRadioButton_existing_item)
+                            .addComponent(txt_item_id, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 11, Short.MAX_VALUE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(42, 42, 42)
+                        .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 197, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -570,26 +741,19 @@ public class RecieveForm extends javax.swing.JFrame {
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txt_item_quantity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txt_quantity_in, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(txt_item_add, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel7)
-                    .addComponent(jLabel8))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txt_item_from, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txt_item_cash, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabel9)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(txt_item_receipt_no, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
+                        .addGap(5, 5, 5)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel8)
+                            .addComponent(jLabel6)))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(30, 30, 30)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(txt_item_add, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txt_item_cash, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
+                .addComponent(jButton3))
         );
 
         table.setModel(new javax.swing.table.DefaultTableModel(
@@ -629,25 +793,75 @@ public class RecieveForm extends javax.swing.JFrame {
             }
         });
 
+        jLabel9.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel9.setText("RECIEPT NO");
+
+        jLabel7.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel7.setText("FROM");
+
+        txt_total_cash.setEditable(false);
+
+        jLabel10.setText("TOTAL CASH");
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(txt_item_receipt_no, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(jLabel9)
+                                .addGap(109, 109, 109))
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(txt_total_cash)
+                                .addGap(28, 28, 28)))
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(jLabel7)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(txt_item_from)))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(26, 26, 26)
+                                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jLabel10))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel10)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txt_total_cash, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel9)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel7)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txt_item_from, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(txt_item_receipt_no, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jProgressBar1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
                     .addComponent(jButton2))
-                .addContainerGap(40, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         txt_table_search.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -659,6 +873,24 @@ public class RecieveForm extends javax.swing.JFrame {
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel1.setText("SEARCH");
 
+        jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("Cart"));
+
+        txt_cart_area.setEditable(false);
+        txt_cart_area.setColumns(20);
+        txt_cart_area.setRows(5);
+        jScrollPane2.setViewportView(txt_cart_area);
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane2)
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 156, Short.MAX_VALUE)
+        );
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -666,7 +898,8 @@ public class RecieveForm extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -686,9 +919,11 @@ public class RecieveForm extends javax.swing.JFrame {
                             .addComponent(txt_table_search, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel1))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 434, Short.MAX_VALUE))
+                        .addComponent(jScrollPane1))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
@@ -765,28 +1000,114 @@ public class RecieveForm extends javax.swing.JFrame {
         transactionsForm.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jMenuItem2ActionPerformed
+    public ArrayList<ReceivedCart> ListCartItems() {
+        ArrayList<ReceivedCart> itemsList = new ArrayList();
+        try {
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        String password = JOptionPane.showInputDialog("Enter Your Password ");
+            Connection con = methods.getConnection();
+
+            Statement st = con.createStatement();
+
+            String searchQuery = "SELECT * FROM " + Keys.KEY_RECEIVED_CART_TABLE+ " ";
+            ResultSet rs = st.executeQuery(searchQuery);
+            while (rs.next()) {
+
+                ReceivedCart data = new ReceivedCart(
+                        rs.getInt(Keys.KEY_CART_ID), 
+                        rs.getInt(Keys.KEY_ITEM_ID),
+                        rs.getString(Keys.KEY_ITEM_NAME),
+                        rs.getString(Keys.KEY_ITEM_QUANTITY),
+                        rs.getString(Keys.KEY_TRANSACTION_QUANTITY),
+                        rs.getString(Keys.KEY_TRANSACTION_QUANTITY_IN),
+                        rs.getString(Keys.KEY_TRANSACTION_CASH),
+                        rs.getString(Keys.KEY_TRANSACTION_TYPE)
+                );
+
+                itemsList.add(data);
+            }
+            st.close();
+            rs.close();
+            con.close();
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+        return itemsList;
+    }
+private void runn(){
+    String password = JOptionPane.showInputDialog("Enter Your Password ");
         String user_name = methods.getUserNameByPassword(password);
-
+            jButton2.setEnabled(false);
         if (!"null".equals(user_name)) {
 
-            if (checkEmpty()) {
+            if (checkLower()) {
+                try{
+              ArrayList<ReceivedCart> items = ListCartItems();
+              String rNo=produce();
+              String from=txt_item_from.getText();
+              String reciept_in=txt_item_receipt_no.getText();
+              String totalCash=txt_total_cash.getText();
+              progressBarTrue();
+            for(int a=0;a<items.size();a++){
+            
+            String item_name=items.get(a).getItem_name();
+            String item_type=items.get(a).getTransaction_type();
+            String item_quantity=items.get(a).getItem_new_quantity();
+            String item_quantity_in=items.get(a).getTransaction_quantity_in();
+            String item_cash=items.get(a).getTransaction_cash();
+            int item_id=items.get(a).getItem_id();
+            String transaction_quantity=items.get(a).getTransaction_quantity();
+                
 
-                if (newItem) {
-                    insertNewItem(user_name);
-                } else {
-                    updateExistingItem(user_name);
+                if (item_type.equals(Keys.KEY_TRANSACTION_RECIEVE_NEW)) {
+//       
+                    
+                    insertNewItem(item_name,item_type,item_quantity,transaction_quantity,item_quantity_in,item_cash,item_id,user_name,rNo,from,reciept_in);
+                }
+                    
+
+                    
+                else if(item_type.equals(Keys.KEY_TRANSACTION_RECEIVE_EXISTING)){
+                        
+                    updateExistingItem(item_name,item_type,item_quantity,transaction_quantity,item_quantity_in,item_cash,item_id,user_name,rNo,from,reciept_in);
                 }
 
             }
-
-        } else {
+            Printing printing=new Printing(rNo, user_name, items,String.valueOf(totalC),from);
+            //Printing(String transactionReceiptNo, String officer, ArrayList<CartPojo> items,String totalCash,String from)
+            
+            jButton2.setEnabled(true);
+            progressBarFalse();
+            refresh();
+            jButton2.setEnabled(false);
+                }
+                catch(Exception m){
+                    m.printStackTrace();
+                }
+        }else{
+             JOptionPane.showMessageDialog(null, "Fill All Required Fields");   
+            }
+        }
+            
+            else {
             JOptionPane.showMessageDialog(null, "UN-REGISTERD PASSWORD..."
                     + "\n"
                     + "FIND ASSISTANCE FROM SYSTEM ADMINISTRATOR");
         }
+            
+        
+}
+        public void threadExecute() {
+        Thread log = new Thread() {
+            public void run() {
+
+               runn();
+            }
+        };
+        log.start();
+    }
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        threadExecute();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -832,6 +1153,85 @@ public class RecieveForm extends javax.swing.JFrame {
     private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
         Calc n=new Calc();
     }//GEN-LAST:event_jMenuItem5ActionPerformed
+    final String uline = "__________________________________________________________________________________";
+    final String dline = "----------------------------------------------------------------------------------";
+  
+    
+    public void insertToCart(int item_id) {
+        String  query = "INSERT INTO " + Keys.KEY_RECEIVED_CART_TABLE + "("
+                + "" + Keys.KEY_ITEM_ID + ", "
+                + "" + Keys.KEY_ITEM_NAME + ","
+                + "" + Keys.KEY_ITEM_QUANTITY + ","
+                + "" + Keys.KEY_TRANSACTION_QUANTITY + ","
+                + "" + Keys.KEY_TRANSACTION_QUANTITY_IN + ","
+                + "" + Keys.KEY_TRANSACTION_CASH + ","
+                + Keys.KEY_TRANSACTION_TYPE + ")"
+                + " VALUES ("
+                + "'" + item_id + "',"
+                + "'" + this.txt_item_name.getText() + "',"
+                + "'" + this.txt_item_quantity.getText() + "',"
+                + "'" + this.txt_item_add.getText() + "',"
+                + "'" + txt_quantity_in.getText() + "',"
+                + "'" + txt_item_cash.getText() + "',"
+                
+              + "'"+transactionType+"')";
+
+        if (methods.executeSQlQueryN(query) == 1) {
+if(newItem){
+            txt_cart_area.append("" + this.txt_item_name.getText() + " \n                           " + this.txt_item_quantity.getText() + ""
+                    + "                            " + item_id + "  \n");
+
+            clearTop();
+}
+else{
+    txt_cart_area.append("" + this.txt_item_name.getText() + " \n                           " + this.txt_item_add.getText() + ""
+                    + "                            " + item_id + "  \n");
+
+            clearTop();
+}
+
+        } else {
+            JOptionPane.showMessageDialog(null, "ERROR !!! \n Possible Duplicate Items");
+        }
+    }
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+       if (checkEmpty()) {
+              try{
+            if(txt_item_cash.getText().isEmpty()){
+                 JOptionPane.showMessageDialog(null, "Enter Cash");
+            }
+           else {
+                totalC=totalC+Double.valueOf(txt_item_cash.getText());
+                txt_total_cash.setText(String.valueOf(totalC));
+            }
+        }
+        catch(Exception a){
+            
+        } 
+        if(newItem){
+        insertToCart(0);
+       }
+       else{
+          insertToCart(Integer.valueOf(txt_item_id.getText())); 
+           
+       }
+        
+        
+       
+       }
+       
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void txt_item_cashKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_item_cashKeyReleased
+        try{
+            int n=Integer.valueOf(txt_item_cash.getText());
+        }
+        catch(Exception nm){
+            txt_item_cash.setText("0");
+             JOptionPane.showMessageDialog(null, "Numerical Values Only..If Null Use 0");
+            
+        }
+    }//GEN-LAST:event_txt_item_cashKeyReleased
     private void addQuantity() {
 
         try {
@@ -882,7 +1282,9 @@ public class RecieveForm extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -903,11 +1305,14 @@ public class RecieveForm extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JProgressBar jProgressBar1;
     private javax.swing.JRadioButton jRadioButton_existing_item;
     private javax.swing.JRadioButton jRadioButton_new_item;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable table;
+    private javax.swing.JTextArea txt_cart_area;
     private javax.swing.JTextField txt_item_add;
     private javax.swing.JTextField txt_item_cash;
     private javax.swing.JTextField txt_item_from;
@@ -917,7 +1322,25 @@ public class RecieveForm extends javax.swing.JFrame {
     private javax.swing.JTextField txt_item_receipt_no;
     private javax.swing.JTextField txt_quantity_in;
     private javax.swing.JTextField txt_table_search;
+    private javax.swing.JTextField txt_total_cash;
     // End of variables declaration//GEN-END:variables
+    public void deleteCart(int item_id) {
+        String query = "DELETE FROM " + Keys.KEY_RECEIVED_CART_TABLE + "  WHERE " + Keys.KEY_ITEM_ID + " = '" + item_id + "'";
+        if (methods.executeSQlQueryN(query) == 1) {
 
+        } else {
+            System.out.println("Error deleteCart");
+        }
+    }
+
+    public void deleteAllCart() {
+        //String query = "DELETE FROM "+Keys.KEY_CART_TABLE+"  WHERE "+Keys.KEY_ITEM_ID+" = '" +item_id+"'";
+        String query = "DELETE FROM " + Keys.KEY_RECEIVED_CART_TABLE + " ";
+        if (methods.executeSQlQueryN(query) == 1) {
+            JOptionPane.showMessageDialog(null, "READY");
+        } else {
+            System.out.println("Error deleteCart");
+        }
+    }
 
 }

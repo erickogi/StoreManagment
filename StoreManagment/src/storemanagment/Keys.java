@@ -58,6 +58,8 @@ public class Keys {
     //Transaction types
     public static final String KEY_TRANSACTION_RECIEVE_NEW="Recieved New Item(Insert)";
     public static final String KEY_TRANSACTION_RECEIVE_EXISTING="Recieved Existing Item(Update)";
+    public static final String KEY_TRANSACTION_RETURN_LOANED_ITEM="Returned Loaned Item";
+    
     
     public static final String KEY_TRANSACTION_GIVE="Given Out";
     
@@ -70,7 +72,28 @@ public class Keys {
     public static final String KEY_CART_TABLE="items_cart";
     
     public static final String KEY_CART_ID="cart_id";
-   
+    
+    public static final String KEY_CART_LOANEDTYPE="loanedtype";
+    
+    public static final String KEY_RETURNABLE="Returnable";
+    public static final String KEY_NON_RETURNABLE="Non_Returnable";
+    
+//      `loan_id` int(100) NOT NULL AUTO_INCREMENT,
+//  `item_id` int(100) NOT NULL,
+//  `item_name` varchar(100) NOT NULL,
+//  `item_type` varchar(70) NOT NULL,
+//  `item_quantity` varchar(70) DEFAULT NULL,
+//  `item_quantity_in` varchar(70) DEFAULT NULL,
+//  `transaction_to` varchar(200) DEFAULT NULL,
+//  `transaction_receipt_no_out` varchar(70) DEFAULT NULL,
+//  `transaction_officer_incharge` varchar(70) DEFAULT NULL,
+//  `transaction_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+//  PRIMARY KEY (`loan_id`)
+    public static final String KEY_LOANED_TABLE="items_loaned_table";
+    public static final String KEY_LOANED_ID="loan_id";
+    
+    
+   public static final String KEY_RECEIVED_CART_TABLE="items_received_cart";
     
     
 }

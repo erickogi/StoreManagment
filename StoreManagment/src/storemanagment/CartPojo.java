@@ -17,15 +17,24 @@ public class CartPojo {
     private String transaction_quantity;
     private String transaction_quantity_in;
     private String transaction_cash;
+    private String loanedtype;
 
-    public CartPojo(int cart_id, int item_id, String item_name, String item_new_quantity, String transaction_quantity, String transaction_quantity_in) {
+    public CartPojo(int cart_id, int item_id, String item_name, String item_new_quantity, String transaction_quantity, String transaction_quantity_in,String loantype) {
         this.cart_id = cart_id;
         this.item_id = item_id;
         this.item_name = item_name;
         this.item_new_quantity = item_new_quantity;
         this.transaction_quantity = transaction_quantity;
         this.transaction_quantity_in = transaction_quantity_in;
-       // this.transaction_cash=transaction_cash;
+        this.loanedtype=loantype;
+    }
+
+    public String getLoanedtype() {
+        return loanedtype;
+    }
+
+    public void setLoanedtype(String loanedtype) {
+        this.loanedtype = loanedtype;
     }
 
     public String getTransaction_cash() {
