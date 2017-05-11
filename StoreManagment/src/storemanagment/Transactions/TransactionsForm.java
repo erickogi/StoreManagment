@@ -12,9 +12,11 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import storemanagment.CartPojo;
@@ -40,7 +42,7 @@ Methods methods=new Methods();
     public TransactionsForm(String storeType) {
         this.storeType = storeType;
          initComponents();
-         findTransactions();
+         findTransactions(0);
          jButton4.setVisible(false);
           setTilteImage();
          this.setTitle(storeType+" -Transactions");
@@ -49,7 +51,7 @@ Methods methods=new Methods();
     
     public TransactionsForm() {
            initComponents();
-           findTransactions();
+           findTransactions(0);
     }
              public Color setTilteImage(){
         Color c=null;
@@ -124,18 +126,85 @@ Methods methods=new Methods();
         }
         return transactionsList;
     }
+    
+    public ArrayList<TransactionsPojo> ListTransactions(String Id,int a) {
+        ArrayList<TransactionsPojo> transactionsList = new ArrayList();
+        try {
+  
+     Date fr= jDateChooserFrom.getDate();
+    Date to= jDateChooserTo.getDate();
+    java.util.Date frm=(fr);
+     java.util.Date too=(to);
+     java.sql.Date FDATE=new java.sql.Date(frm.getTime());
+     java.sql.Date TDATE=new java.sql.Date(too.getTime());
+            Connection con = methods.getConnection();
+            
+            Statement st = con.createStatement();
+            //String searchQueryv = "SELECT * FROM `transactions` WHERE `id` = '" + Id + "'AND `updated_at`>= '"+FDATE+"' AND `updated_at`<= '"+TDATE+"'";
+            String searchQuery = "SELECT * FROM " + Keys.KEY_TRANSACTION_TABLE + ""
+                    + " WHERE CONCAT(" + Keys.KEY_TRANSACTION_RECEIPT_GIVEN + "," + Keys.KEY_TRANSACTION_RECEIPT_RECIEVED+ "," + Keys.KEY_ITEM_ID + "," + Keys.KEY_ITEM_NAME + ") LIKE '%" + Id + "%'  "
+                    + "AND " + Keys.KEY_ITEM_TYPE + " = '" + this.storeType + "' "
+                    + "AND "+Keys.KEY_TRANSACTION_TIME+">= '"+FDATE+"' "
+                    + "AND "+Keys.KEY_TRANSACTION_TIME+"<= '"+TDATE+"' "
+                    + "ORDER BY "+Keys.KEY_TRANSACTION_ID+" DESC";
+            ResultSet rs = st.executeQuery(searchQuery);
+            while (rs.next()) {
+//TransactionsPojo(int transaction_id, int item_id, String item_name, String item_type, String transaction_quantity,
+//String transaction_quantity_in, String transaction_type, String transaction_to, String transaction_from, String transaction_cash, 
+//String transaction_receipt_no_in, String transaction_receipt_no_out, String transaction_officer_incharge, String transaction_time_string)
+        
+        
+        
+                TransactionsPojo data = new TransactionsPojo(
+                        rs.getInt(Keys.KEY_TRANSACTION_ID),
+                        rs.getInt(Keys.KEY_ITEM_ID),
+                        rs.getString(Keys.KEY_ITEM_NAME),
+                        rs.getString(Keys.KEY_ITEM_TYPE),
+                        rs.getInt(Keys.KEY_TRANSACTION_REVERT_STATUS),
+                        rs.getString(Keys.KEY_TRANSACTION_QUANTITY),
+                        rs.getString(Keys.KEY_TRANSACTION_QUANTITY_IN),
+                        rs.getString(Keys.KEY_TRANSACTION_TYPE),
+                        rs.getString(Keys.KEY_TRANSACTION_TO),
+                        rs.getString(Keys.KEY_TRANSACTION_FROM),
+                        rs.getString(Keys.KEY_TRANSACTION_CASH),
+                        rs.getString(Keys.KEY_TRANSACTION_RECEIPT_RECIEVED),
+                        rs.getString(Keys.KEY_TRANSACTION_RECEIPT_GIVEN),
+                        rs.getString(Keys.KEY_TRANSACTION_OFFICER_INCHARGE),
+                        rs.getString(Keys.KEY_TRANSACTION_TIME)
+                );
 
-    private void refresh() {
+                transactionsList.add(data);
+            }
+            st.close();
+            rs.close();
+            con.close();
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+        return transactionsList;
+    }
+    
+    
+  
+ 
+
+    private void refresh(int a) {
 
         DefaultTableModel model = (DefaultTableModel) this.table.getModel();
 
         model.setRowCount(0);
 
-        findTransactions();
+        findTransactions(a);
     }
 
-    public void findTransactions() {
-        ArrayList<TransactionsPojo> data = ListTransactions(txt_table_search.getText());
+    public void findTransactions(int a) {
+         ArrayList<TransactionsPojo> data =null;
+        if(a==1){
+        data = ListTransactions(txt_table_search.getText(),1);
+        }
+        else{
+        data = ListTransactions(txt_table_search.getText());
+        }
         DefaultTableModel model = new DefaultTableModel();
 //TransactionsPojo(int transaction_id, int item_id, String item_name, String item_type, String transaction_quantity,
 //String transaction_quantity_in, String transaction_type, String transaction_to, String transaction_from, String transaction_cash, 
@@ -338,7 +407,7 @@ Methods methods=new Methods();
         if (methods.executeSQlQueryN(query) == 1) {
             
             JOptionPane.showMessageDialog(null, "REVERTED SUCCESSFULY");
-            refresh();
+            refresh(0);
         }
         else{
             System.out.println("Error setTransaction");
@@ -394,6 +463,7 @@ Methods methods=new Methods();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
+        jButton6 = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem3 = new javax.swing.JMenuItem();
@@ -579,6 +649,11 @@ Methods methods=new Methods();
 
         jButton1.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jButton1.setText("FIND");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("ACTIONS"));
 
@@ -643,6 +718,14 @@ Methods methods=new Methods();
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
+        jButton6.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jButton6.setText("Print");
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -650,7 +733,6 @@ Methods methods=new Methods();
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(txt_table_search, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -661,11 +743,15 @@ Methods methods=new Methods();
                             .addComponent(jDateChooserFrom, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(61, 61, 61)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel3)
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(jDateChooserTo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(54, 54, 54)
-                                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jLabel3))))
+                                .addGap(18, 18, 18)
+                                .addComponent(jButton1)
+                                .addGap(18, 18, 18)
+                                .addComponent(jButton6)))
+                        .addGap(0, 36, Short.MAX_VALUE))
+                    .addComponent(jScrollPane2))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -685,7 +771,9 @@ Methods methods=new Methods();
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jButton1)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jButton1)
+                                    .addComponent(jButton6))
                                 .addGap(0, 506, Short.MAX_VALUE))
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -927,7 +1015,7 @@ String type;
     }//GEN-LAST:event_txt_transaction_dateActionPerformed
 
     private void txt_table_searchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_table_searchKeyReleased
-      refresh();
+      refresh(0);
     }//GEN-LAST:event_txt_table_searchKeyReleased
 
     private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
@@ -937,6 +1025,36 @@ String type;
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
      
     }//GEN-LAST:event_jButton5ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        if(  ((JTextField)jDateChooserFrom.getDateEditor().getUiComponent()).getText().isEmpty()||
+        ((JTextField)jDateChooserTo.getDateEditor().getUiComponent()).getText().isEmpty()){
+ refresh(0);
+}
+else{
+   refresh(1);   
+}
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+         String password = JOptionPane.showInputDialog("Enter Your Password ");
+         String user_name = methods.getUserNameByPassword(password);
+        if(  ((JTextField)jDateChooserFrom.getDateEditor().getUiComponent()).getText().isEmpty()||
+        ((JTextField)jDateChooserTo.getDateEditor().getUiComponent()).getText().isEmpty()){
+
+        if (!"null".equals(user_name)) {
+             Printing print=new Printing(storeType, user_name, ListTransactions(txt_table_search.getText()),"TR",0);
+            // refresh(0);
+        }
+}
+else{
+     if (!"null".equals(user_name)) {
+             Printing print=new Printing(storeType, user_name, ListTransactions(txt_table_search.getText(),0),"TR",0);
+            // refresh(0);
+        }  
+}
+       
+    }//GEN-LAST:event_jButton6ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -979,6 +1097,7 @@ String type;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButton6;
     private com.toedter.calendar.JDateChooser jDateChooserFrom;
     private com.toedter.calendar.JDateChooser jDateChooserTo;
     private javax.swing.JLabel jLabel1;

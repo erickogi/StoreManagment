@@ -24,6 +24,7 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import storemanagment.Methods;
+import storemanagment.UserAcc;
 
 /**
  *
@@ -41,46 +42,23 @@ Methods methods=new Methods();
         initComponents();
         setTilteImage();
         refresh();
-        radiog.add(rbSellectAll);
-        radiog.add(rbDiselectAll);
+        radiog.add(jRadioButtonAdmin);
+        radiog.add(jRadioButtonUser);
         
         
         
         ActionListener actionListener=new ActionHandler();
-//        cbAccountsGroups.addActionListener(actionListener);
-//     cbAddCustomers.addActionListener(actionListener);
-//   cbAddStaff.addActionListener(actionListener);
-//    cbAddSystemUsers.addActionListener(actionListener);
-//   cbBackup.addActionListener(actionListener);
-//    cbDeposit.addActionListener(actionListener);
-//    cbGroupCollectionSheet.addActionListener(actionListener);
-//    cbGroups.addActionListener(actionListener);
-//    cbLoanApplications.addActionListener(actionListener);
-//    cbLoanDefaulters.addActionListener(actionListener);
-//    cbLoanPayment.addActionListener(actionListener);
-//   cbLoanProcessing.addActionListener(actionListener);
-//    cbLoanSettings.addActionListener(actionListener);
-//    cbOrgsAccount.addActionListener(actionListener);
-//    cbPrefrences.addActionListener(actionListener);
-//    cbRestore.addActionListener(actionListener);
-//    cbTodaysLoan.addActionListener(actionListener);
-//    cbUsersPasswords.addActionListener(actionListener);
-//    cbViewCustomers.addActionListener(actionListener);
-//    cbViewLoans.addActionListener(actionListener);
-//    cbViewTransactions.addActionListener(actionListener);
-//    cbWithdraw.addActionListener(actionListener);
+
         
-        
-        
-        
-                rbSellectAll.addActionListener(new ActionListener() {
+                jRadioButtonAdmin.addActionListener(new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
          sellectAll();
+         
         
         }
     });
-         rbDiselectAll.addActionListener(new ActionListener() {
+         jRadioButtonUser.addActionListener(new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
             deselect();    
@@ -108,28 +86,7 @@ Methods methods=new Methods();
         }
 }
     public void sellectAll(){
-//        cbAccountsGroups.setSelected(true);
-//  cbAddCustomers.setSelected(true);
-//   cbAddStaff.setSelected(true);
-//    cbAddSystemUsers.setSelected(true);
-//   cbBackup.setSelected(true);
-//    cbDeposit.setSelected(true);
-//    cbGroupCollectionSheet.setSelected(true);
-//    cbGroups.setSelected(true);
-//    cbLoanApplications.setSelected(true);
-//    cbLoanDefaulters.setSelected(true);
-//    cbLoanPayment.setSelected(true);
-//   cbLoanProcessing.setSelected(true);
-//    cbLoanSettings.setSelected(true);
-//    cbOrgsAccount.setSelected(true);
-//    cbPrefrences.setSelected(true);
-//    cbRestore.setSelected(true);
-//    cbTodaysLoan.setSelected(true);
-//    cbUsersPasswords.setSelected(true);
-//    cbViewCustomers.setSelected(true);
-//    cbViewLoans.setSelected(true);
-//    cbViewTransactions.setSelected(true);
-//    cbWithdraw.setSelected(true);
+
     hash.put("a", "A");
     hash.put("b", "B");
    // hash.put("c", "C");
@@ -156,29 +113,13 @@ Methods methods=new Methods();
     hash.put("x", "X");
     }
     public void deselect(){
-//         cbAccountsGroups.setSelected(false);
-//     cbAddCustomers.setSelected(false);
-//   cbAddStaff.setSelected(false);
-//    cbAddSystemUsers.setSelected(false);
-//   cbBackup.setSelected(false);
-//    cbDeposit.setSelected(false);
-//    cbGroupCollectionSheet.setSelected(false);
-//    cbGroups.setSelected(false);
-//    cbLoanApplications.setSelected(false);
-//    cbLoanDefaulters.setSelected(false);
-//    cbLoanPayment.setSelected(false);
-//   cbLoanProcessing.setSelected(false);
-//    cbLoanSettings.setSelected(false);
-//    cbOrgsAccount.setSelected(false);
-//    cbPrefrences.setSelected(false);
-//    cbRestore.setSelected(false);
-//    cbTodaysLoan.setSelected(false);
-//    cbUsersPasswords.setSelected(false);
-//    cbViewCustomers.setSelected(false);
-//    cbViewLoans.setSelected(false);
-//    cbViewTransactions.setSelected(false);
-//    cbWithdraw.setSelected(false);
-     hash.clear();
+    hash.put("a", "A");
+    hash.put("b", "B");
+   // hash.put("c", "C");
+   // hash.put("d", "D");
+    hash.put("e", "E");
+    hash.put("f", "F");
+     //hash.clear();
      val="";
      //id="";
     }
@@ -187,65 +128,66 @@ Methods methods=new Methods();
         txtUserName.setText("");
         txtHash.setText("");
         hash.clear();
-        rbSellectAll.setSelected(false);
-        rbDiselectAll.setSelected(false);
+        jRadioButtonUser.setSelected(false);
+        jRadioButtonAdmin.setSelected(false);
         val="";
         id="";
+        radiog.clearSelection();
     }
-//    public ArrayList<UserAcc> ListUsers()
-//  {
-//    ArrayList<UserAcc> usersList = new ArrayList();
-//    try
-//    {
-//        Methods m=new Methods();
-//        Connection con = m.getConnection();
-//     // Connection con = getConnection();
-//      Statement st = con.createStatement();
-//      String searchQuery = "SELECT * FROM `system_user`";
-//      ResultSet rs = st.executeQuery(searchQuery);
-//      while (rs.next())
-//      {
-//        UserAcc user = new UserAcc(rs.getString("user_name"), rs.getString("user_password"), rs.getString("id"));
-//        
-//        usersList.add(user);
-//      }
-//      st.close();
-//      rs.close();
-//      con.close();
-//    }
-//    catch (Exception ex)
-//    {
-//      System.out.println(ex.getMessage());
-//    }
-//    return usersList;
-//  }
-//  
-//    public void findUsers()
-//  {
-//    ArrayList<UserAcc> users = ListUsers();
-//    DefaultTableModel model = new DefaultTableModel();
-//    
-//    model.setColumnIdentifiers(new Object[] { "User_Name", "Id" });
-//    Object[] row = new Object[2];
-//    for (int i = 0; i < users.size(); i++)
-//    {
-//      row[0] = ((UserAcc)users.get(i)).getId();
-//   //   row[1] = ((UserAcc)users.get(i)).getAccName();
-//       row[1] = ((UserAcc)users.get(i)).getAccFee();
-//      
-//     
-//      
-//      model.addRow(row);
-//    }
-//    this.table.setModel(model);
-//  }
+    public ArrayList<UserAcc> ListUsers()
+  {
+    ArrayList<UserAcc> usersList = new ArrayList();
+    try
+    {
+        Methods m=new Methods();
+        Connection con = m.getConnection();
+     // Connection con = getConnection();
+      Statement st = con.createStatement();
+      String searchQuery = "SELECT * FROM `system_user`";
+      ResultSet rs = st.executeQuery(searchQuery);
+      while (rs.next())
+      {
+        UserAcc user = new UserAcc(rs.getString("user_name"), rs.getString("user_password"), rs.getString("id"));
+        
+        usersList.add(user);
+      }
+      st.close();
+      rs.close();
+      con.close();
+    }
+    catch (Exception ex)
+    {
+      System.out.println(ex.getMessage());
+    }
+    return usersList;
+  }
+  
+    public void findUsers()
+  {
+    ArrayList<UserAcc> users = ListUsers();
+    DefaultTableModel model = new DefaultTableModel();
+    
+    model.setColumnIdentifiers(new Object[] { "User_Name", "Id" });
+    Object[] row = new Object[2];
+    for (int i = 0; i < users.size(); i++)
+    {
+      row[0] = ((UserAcc)users.get(i)).getId();
+   //   row[1] = ((UserAcc)users.get(i)).getAccName();
+       row[1] = ((UserAcc)users.get(i)).getAccFee();
+      
+     
+      
+      model.addRow(row);
+    }
+    this.table.setModel(model);
+  }
 private void refresh(){
     
         DefaultTableModel model = (DefaultTableModel)this.table.getModel();
      model.setRowCount(0);
      
         
-    // findUsers();
+    findUsers();
      
 }
     /**
@@ -269,19 +211,8 @@ private void refresh(){
         jButton4 = new javax.swing.JButton();
         txtHash = new javax.swing.JPasswordField();
         txtPassword = new javax.swing.JPasswordField();
-        cbBackup = new javax.swing.JCheckBox();
-        cbRestore = new javax.swing.JCheckBox();
-        cbAddCustomers = new javax.swing.JCheckBox();
-        cbViewCustomers = new javax.swing.JCheckBox();
-        cbLoanApplications = new javax.swing.JCheckBox();
-        cbLoanProcessing = new javax.swing.JCheckBox();
-        cbViewLoans = new javax.swing.JCheckBox();
-        cbOrgsAccount = new javax.swing.JCheckBox();
-        cbAddSystemUsers = new javax.swing.JCheckBox();
-        cbUsersPasswords = new javax.swing.JCheckBox();
-        cbPrefrences = new javax.swing.JCheckBox();
-        rbSellectAll = new javax.swing.JRadioButton();
-        rbDiselectAll = new javax.swing.JRadioButton();
+        jRadioButtonAdmin = new javax.swing.JRadioButton();
+        jRadioButtonUser = new javax.swing.JRadioButton();
         jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -338,33 +269,9 @@ private void refresh(){
             }
         });
 
-        cbBackup.setText("BackUp");
+        jRadioButtonAdmin.setText("ADMIN");
 
-        cbRestore.setText("Restore");
-
-        cbAddCustomers.setText("Add Customers");
-
-        cbViewCustomers.setText("View Customers");
-
-        cbLoanApplications.setText("Loan Applications");
-
-        cbLoanProcessing.setText("Loan Processing");
-
-        cbViewLoans.setText("View Loans");
-
-        cbOrgsAccount.setText("Org's Account");
-
-        cbAddSystemUsers.setText("Add System Users");
-
-        cbUsersPasswords.setText("Users Passwords");
-
-        cbPrefrences.setText("Prefrences");
-
-        rbSellectAll.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        rbSellectAll.setText("SELECT ALL");
-
-        rbDiselectAll.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        rbDiselectAll.setText("DISELECT ALL");
+        jRadioButtonUser.setText("USER");
 
         jButton2.setText("CLEAR");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
@@ -380,51 +287,33 @@ private void refresh(){
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel1Layout.createSequentialGroup()
+                            .addGap(265, 265, 265)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel3)
+                                .addComponent(txtHash, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jRadioButtonUser))
+                            .addGap(26, 26, 26))
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                            .addGap(111, 111, 111)
+                            .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(32, 32, 32)))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(cbBackup)
-                            .addComponent(cbRestore)
-                            .addComponent(cbViewCustomers))
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(152, 152, 152)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(jLabel3)
-                                        .addComponent(txtHash, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(cbAddSystemUsers)
-                                        .addComponent(cbOrgsAccount)
-                                        .addComponent(cbUsersPasswords)
-                                        .addComponent(cbPrefrences)))
-                                .addGap(26, 26, 26))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                .addGap(10, 10, 10)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(rbDiselectAll, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addGap(32, 32, 32))))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(cbAddCustomers)
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel1)
                                     .addComponent(txtUserName, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(18, 18, 18)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(jLabel2)
                                     .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(cbLoanApplications)
-                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                        .addComponent(jButton2)
-                                        .addComponent(cbViewLoans))
-                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                        .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(cbLoanProcessing, javax.swing.GroupLayout.Alignment.LEADING))))
-                            .addComponent(rbSellectAll))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
+                                    .addComponent(jButton4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jButton2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addComponent(jRadioButtonAdmin))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 449, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -440,32 +329,13 @@ private void refresh(){
                     .addComponent(txtUserName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtHash, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                .addGap(47, 47, 47)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(cbBackup)
-                    .addComponent(cbLoanApplications)
-                    .addComponent(cbOrgsAccount))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(cbRestore)
-                    .addComponent(cbLoanProcessing)
-                    .addComponent(cbAddSystemUsers))
-                .addGap(24, 24, 24)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(cbAddCustomers)
-                    .addComponent(cbViewLoans)
-                    .addComponent(cbUsersPasswords))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(cbViewCustomers)
-                    .addComponent(cbPrefrences))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(rbSellectAll)
-                    .addComponent(rbDiselectAll))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton2)
+                    .addComponent(jRadioButtonAdmin)
+                    .addComponent(jRadioButtonUser))
                 .addGap(41, 41, 41)
+                .addComponent(jButton2)
+                .addGap(148, 148, 148)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton3)
                     .addComponent(jButton4)
@@ -491,56 +361,58 @@ private void refresh(){
     private void txtHashActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtHashActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtHashActionPerformed
-String val="";
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-      val=hash.values().toString().replaceAll("\\[","").replaceAll("\\]","").replaceAll(",","").replaceAll("\\s+","");
-     System.out.println(val.length()+"\n"+val);
-     add(val);
-    }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         val=hash.values().toString().replaceAll("\\[","").replaceAll("\\]","").replaceAll(",","").replaceAll("\\s+","");
-     System.out.println(val);
+        System.out.println(val);
         update(val);
     }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        val=hash.values().toString().replaceAll("\\[","").replaceAll("\\]","").replaceAll(",","").replaceAll("\\s+","");
+        System.out.println(val.length()+"\n"+val);
+        add(val);
+    }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         delete();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableMouseClicked
-             deselect();
-         //   refresh();
-             //refreshTable();
-             clear();
-        
-        
+        deselect();
+        //   refresh();
+        //refreshTable();
+        clear();
+
         int i = this.table.getSelectedRow();
 
         TableModel model = this.table.getModel();
 
-         this.txtUserName.setText(model.getValueAt(i, 0).toString());
+        this.txtUserName.setText(model.getValueAt(i, 0).toString());
 
         // this.txtPassword.setText(model.getValueAt(i, 1).toString());
-         id=model.getValueAt(i, 1).toString();
-         String Ghash= getHash(model.getValueAt(i, 1).toString());
-         txtHash.setText(Ghash);
-         processGhash(Ghash);
-        
+        id=model.getValueAt(i, 1).toString();
+        String Ghash= getHash(model.getValueAt(i, 1).toString());
+        txtHash.setText(Ghash);
+        processGhash(Ghash);
+
     }//GEN-LAST:event_tableMouseClicked
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-           deselect();
-            refresh();
-             //refreshTable();
-             clear();
+        clear();
     }//GEN-LAST:event_jButton2ActionPerformed
+String val="";
 public void processGhash(String Ghash){
     if(Ghash.length()==22){
         sellectAll();
+                
+        jRadioButtonAdmin.setSelected(true);
+        jRadioButtonUser.setSelected(false);
     }
     else{
-        for(int a=0;a<Ghash.length();a++){
+     //   for(int a=0;a<Ghash.length();a++){
+            jRadioButtonUser.setSelected(true);
+            jRadioButtonAdmin.setSelected(false);
 //            if(Ghash.charAt(a)=='A'){
 //               hash.put("a", "A");
 //               cbBackup.setSelected(true);
@@ -636,7 +508,7 @@ public void processGhash(String Ghash){
 //              cbPrefrences.setSelected(true);
 //                
 //            }
-        }
+   //     }
     }
     
     
@@ -678,8 +550,9 @@ public void update(String val){
      // executeSQlQuery(query, "Updated");
             
             try (Connection connection = methods.getConnection()) {
-                String query ="";
-                        //"UPDATE `system_user` SET `user_name`='" + this.txtUserName.getText() + "',`user_password`='" + this.txtPassword.getText() + "',`hash`='" + val + "' WHERE `id` = '" + this.id + "'";
+                String query =
+"UPDATE `system_user` SET `user_name`='" + this.txtUserName.getText() + "',"
+        + "`user_password`='" + this.txtPassword.getText() + "',`hash`='" + val + "' WHERE `id` = '" + this.id + "'";
                 
                 try (PreparedStatement pst = connection.prepareStatement(query)) {
                     pst.executeUpdate(query);
@@ -779,17 +652,6 @@ public String getHash(String Gid){
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JCheckBox cbAddCustomers;
-    private javax.swing.JCheckBox cbAddSystemUsers;
-    private javax.swing.JCheckBox cbBackup;
-    private javax.swing.JCheckBox cbLoanApplications;
-    private javax.swing.JCheckBox cbLoanProcessing;
-    private javax.swing.JCheckBox cbOrgsAccount;
-    private javax.swing.JCheckBox cbPrefrences;
-    private javax.swing.JCheckBox cbRestore;
-    private javax.swing.JCheckBox cbUsersPasswords;
-    private javax.swing.JCheckBox cbViewCustomers;
-    private javax.swing.JCheckBox cbViewLoans;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
@@ -798,9 +660,9 @@ public String getHash(String Gid){
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JRadioButton jRadioButtonAdmin;
+    private javax.swing.JRadioButton jRadioButtonUser;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JRadioButton rbDiselectAll;
-    private javax.swing.JRadioButton rbSellectAll;
     private javax.swing.JTable table;
     private javax.swing.JPasswordField txtHash;
     private javax.swing.JPasswordField txtPassword;

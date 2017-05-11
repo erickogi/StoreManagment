@@ -41,13 +41,13 @@ public class RecieveForm extends javax.swing.JFrame {
     TransactionsPojo transactionsPojo;
     ItemsPojo itemPojo;
     Methods methods = new Methods();
-    
-    private double totalC=0.0;
+
+    private double totalC = 0.0;
 
     ButtonGroup radiog = new ButtonGroup();
     private boolean newItem = false;
     private double balanceQuantity = 0.0;
-    private String transactionType=Keys.KEY_TRANSACTION_RECEIVE_EXISTING;
+    private String transactionType = Keys.KEY_TRANSACTION_RECEIVE_EXISTING;
 
 //     txt_item_add;
 //     txt_item_cash;
@@ -62,12 +62,14 @@ public class RecieveForm extends javax.swing.JFrame {
      * Creates new form RecieveForm
      */
     private String storeType;
+
     private void setCart() {
         txt_cart_area.setText(null);
         txt_cart_area.append("Item :                            Qty :                            Id  \n");
         txt_cart_area.append(uline + "\n");
 
     }
+
     public RecieveForm(String storeType) {
         this.storeType = storeType;
         initComponents();
@@ -78,8 +80,8 @@ public class RecieveForm extends javax.swing.JFrame {
         jRadioButton_existing_item.setSelected(true);
         findItems();
         setCart();
-         setTilteImage();
-         deleteAllCart();
+        setTilteImage();
+        //deleteAllCart();
         jRadioButton_existing_item.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -88,7 +90,7 @@ public class RecieveForm extends javax.swing.JFrame {
                 txt_quantity_in.setEditable(false);
                 txt_item_add.setEditable(true);
                 newItem = false;
-                transactionType=Keys.KEY_TRANSACTION_RECEIVE_EXISTING;
+                transactionType = Keys.KEY_TRANSACTION_RECEIVE_EXISTING;
 
             }
         });
@@ -101,7 +103,7 @@ public class RecieveForm extends javax.swing.JFrame {
                 txt_item_add.setEditable(false);
                 txt_item_id.setText("");
                 newItem = true;
-                transactionType=Keys.KEY_TRANSACTION_RECIEVE_NEW;
+                transactionType = Keys.KEY_TRANSACTION_RECIEVE_NEW;
             }
         });
     }
@@ -137,55 +139,54 @@ public class RecieveForm extends javax.swing.JFrame {
             }
         });
     }
-         public Color setTilteImage(){
-        Color c=null;
+
+    public Color setTilteImage() {
+        Color c = null;
         try {
             //Methods n=new Methods();
-            
-            String i=methods.setIconImage();
+
+            String i = methods.setIconImage();
             this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource(i)));
-            
-            String col=methods.selectcolor();
-             c=new Color(Integer.parseInt(col));
-           // jPanel1.setBackground(c);
-            Container cont=this.getContentPane();
+
+            String col = methods.selectcolor();
+            c = new Color(Integer.parseInt(col));
+            // jPanel1.setBackground(c);
+            Container cont = this.getContentPane();
             cont.getWidth();
             cont.setBackground(c);
-             jPanel1.setBackground(c);
-             jPanel2.setBackground(c);
-              jPanel3.setBackground(c);
-            
-            
+            jPanel1.setBackground(c);
+            jPanel2.setBackground(c);
+            jPanel3.setBackground(c);
+
             this.setForeground(c);
         } catch (Exception ex) {
             Logger.getLogger(RecieveForm.class.getName()).log(Level.SEVERE, null, ex);
         }
         return c;
-}
+    }
+
     boolean checkEmpty() {
         boolean okay = false;
         if (newItem) {
             if (txt_item_name.getText().isEmpty()
                     || txt_item_quantity.getText().isEmpty()
                     || txt_quantity_in.getText().isEmpty()
-                    || txt_item_cash.getText().isEmpty())
-                   // || txt_item_receipt_no.getText().isEmpty()
-                   // || txt_item_from.getText().isEmpty())
-                    {
+                    || txt_item_cash.getText().isEmpty()) // || txt_item_receipt_no.getText().isEmpty()
+            // || txt_item_from.getText().isEmpty())
+            {
 
                 JOptionPane.showMessageDialog(null, "Fill All Details");
 
             } else {
                 okay = true;
             }
-        } else if (txt_item_name.getText().isEmpty() 
+        } else if (txt_item_name.getText().isEmpty()
                 || txt_item_id.getText().isEmpty()
-                || txt_item_quantity.getText().isEmpty() 
+                || txt_item_quantity.getText().isEmpty()
                 || txt_quantity_in.getText().isEmpty()
                 || txt_item_cash.getText().isEmpty()
-                || txt_item_add.getText().isEmpty())
-               // || txt_item_receipt_no.getText().isEmpty()
-               // || txt_item_from.getText().isEmpty()) 
+                || txt_item_add.getText().isEmpty()) // || txt_item_receipt_no.getText().isEmpty()
+        // || txt_item_from.getText().isEmpty()) 
         {
             JOptionPane.showMessageDialog(null, "Fill All Details");
         } else {
@@ -193,24 +194,21 @@ public class RecieveForm extends javax.swing.JFrame {
         }
         return okay;
     }
-   boolean checkLower(){
-         boolean okay = false;
-         
-            if (
-                     txt_item_receipt_no.getText().isEmpty()
-                    
-                    || txt_item_from.getText().isEmpty())
-                
-                {
 
-                JOptionPane.showMessageDialog(null, "Fill All Details");
+    boolean checkLower() {
+        boolean okay = false;
 
-            } else {
-                okay = true;
-            }
-         
-           return okay;
-         
+        if (txt_item_receipt_no.getText().isEmpty()
+                || txt_item_from.getText().isEmpty()) {
+
+            JOptionPane.showMessageDialog(null, "Fill All Details");
+
+        } else {
+            okay = true;
+        }
+
+        return okay;
+
     }
 
     void progressBarTrue() {
@@ -236,15 +234,9 @@ public class RecieveForm extends javax.swing.JFrame {
             String officer_in_charge,
             String rNo,
             String from,
-            String receipt_in     
+            String receipt_in
     ) {
 
-        
-        
-       
-            
-            
-        
         String query = "INSERT INTO items_table("
                 + "" + Keys.KEY_ITEM_NAME + ", "
                 + "" + Keys.KEY_ITEM_TYPE + ","
@@ -255,11 +247,11 @@ public class RecieveForm extends javax.swing.JFrame {
                 + "'" + item_name + "',"
                 + "'" + storeType + "',"
                 + "'" + item_quantity + "',"
-                + "'" + item_quantity_in+ "',"
+                + "'" + item_quantity_in + "',"
                 + "now())";
 
         if (methods.executeSQlQueryN(query) == 1) {
-             int id=getItemIdByName(item_name);
+            int id = getItemIdByName(item_name);
             setTransaction(
                     item_name,
                     item_type,
@@ -277,7 +269,6 @@ public class RecieveForm extends javax.swing.JFrame {
         } else {
 
         }
-        
 
     }
 
@@ -294,9 +285,9 @@ public class RecieveForm extends javax.swing.JFrame {
             String from,
             String receipt_in,
             String transactiontype) {
-            //int id=getItemIdByName(item_name);
+        //int id=getItemIdByName(item_name);
         String nullValue = "--";
-        
+
         String query = "INSERT INTO transactions_table("
                 + "" + Keys.KEY_ITEM_ID + ","
                 + "" + Keys.KEY_ITEM_NAME + ","
@@ -326,8 +317,10 @@ public class RecieveForm extends javax.swing.JFrame {
                 + "'" + officer_in_charge + "',now())";
 
         if (methods.executeSQlQueryN(query) == 1) {
-            if(transactiontype.equals( Keys.KEY_TRANSACTION_RECEIVE_EXISTING)){
-            registerReceiptNo(item_id, rNo);
+            if (transactiontype.equals(Keys.KEY_TRANSACTION_RECEIVE_EXISTING)) {
+                registerReceiptNo(item_id, rNo, 1, item_name);
+            } else {
+                registerReceiptNo(item_id, rNo, 2, item_name);
             }
         }
     }
@@ -343,19 +336,17 @@ public class RecieveForm extends javax.swing.JFrame {
             String officer_in_charge,
             String rNo,
             String from,
-            String receipt_in 
+            String receipt_in
     ) {
 
         String query = "UPDATE " + Keys.KEY_ITEMS_TABLE + " "
                 + "SET " + Keys.KEY_ITEM_QUANTITY + "='" + item_quantity + "'"
-                
                 + "," + Keys.KEY_ITEM_UPDATED_AT + "= now() "
-                
                 + "WHERE " + Keys.KEY_ITEM_ID + "= '" + item_id + "' ";
 
         if (methods.executeSQlQueryN(query) == 1) {
             setTransaction(
-                     item_name,
+                    item_name,
                     item_type,
                     item_quantity,
                     transaction_quantity,
@@ -366,13 +357,12 @@ public class RecieveForm extends javax.swing.JFrame {
                     rNo,
                     from,
                     receipt_in,
-                    
                     Keys.KEY_TRANSACTION_RECEIVE_EXISTING);
         }
 
     }
 
- boolean checkReceiptNo(String No) {
+    boolean checkReceiptNo(String No) {
         boolean isNewNo = false;
         try {
             String stru = No;
@@ -431,7 +421,6 @@ public class RecieveForm extends javax.swing.JFrame {
 
     }
 
-
     public int getItemIdByName(String itemName) {
         int userName = 0;
         try {
@@ -456,15 +445,15 @@ public class RecieveForm extends javax.swing.JFrame {
 
     }
 
-    public void registerReceiptNo(int item_id, String rcNo) {
+    public void registerReceiptNo(int item_id, String rcNo, int a, String item_name) {
         String query = "INSERT INTO " + Keys.KEY_RECEIPT_TABLE + "(" + Keys.KEY_ITEM_NAME + ", " + Keys.KEY_ITEM_ID + ","
                 + "" + Keys.KEY_RECEIPT_NO + "," + Keys.KEY_RECEIPT_TIME + ")"
                 + " VALUES ('" + this.txt_item_name.getText() + "','" + item_id + "','" + rcNo + "',now())";
 
         if (methods.executeSQlQueryN(query) == 1) {
-            deleteCart(item_id);
+            deleteCart(item_id, a, item_name);
             //clearTop();
-            
+
         } else {
 
         }
@@ -489,20 +478,21 @@ public class RecieveForm extends javax.swing.JFrame {
         txt_item_add.setEditable(true);
         newItem = false;
         balanceQuantity = 0.0;
-        totalC=0.0;
+        totalC = 0.0;
         txt_cart_area.setText("");
     }
-    void clearTop(){
+
+    void clearTop() {
         txt_item_add.setText("");
         txt_item_cash.setText("");
-        
+
         txt_item_id.setText("");
         txt_item_name.setText("");
         txt_item_quantity.setText("");
-        
+
         txt_quantity_in.setText("");
         txt_table_search.setText("");
-        
+
         jRadioButton_existing_item.setSelected(true);
         txt_item_name.setEditable(false);
         txt_item_quantity.setEditable(false);
@@ -517,9 +507,9 @@ public class RecieveForm extends javax.swing.JFrame {
         try {
 
             Connection con = methods.getConnection();
-            
+
             Statement st = con.createStatement();
-            
+
             String searchQuery = "SELECT * FROM " + Keys.KEY_ITEMS_TABLE + ""
                     + " WHERE CONCAT(" + Keys.KEY_ITEM_ID + "," + Keys.KEY_ITEM_NAME + ") LIKE '%" + Id + "%'  "
                     + "AND " + Keys.KEY_ITEM_TYPE + " = '" + this.storeType + "'";
@@ -1008,12 +998,12 @@ public class RecieveForm extends javax.swing.JFrame {
 
             Statement st = con.createStatement();
 
-            String searchQuery = "SELECT * FROM " + Keys.KEY_RECEIVED_CART_TABLE+ " ";
+            String searchQuery = "SELECT * FROM " + Keys.KEY_RECEIVED_CART_TABLE + " ";
             ResultSet rs = st.executeQuery(searchQuery);
             while (rs.next()) {
 
                 ReceivedCart data = new ReceivedCart(
-                        rs.getInt(Keys.KEY_CART_ID), 
+                        rs.getInt(Keys.KEY_CART_ID),
                         rs.getInt(Keys.KEY_ITEM_ID),
                         rs.getString(Keys.KEY_ITEM_NAME),
                         rs.getString(Keys.KEY_ITEM_QUANTITY),
@@ -1033,74 +1023,67 @@ public class RecieveForm extends javax.swing.JFrame {
         }
         return itemsList;
     }
-private void runn(){
-    String password = JOptionPane.showInputDialog("Enter Your Password ");
+
+    private void runn() {
+        String password = JOptionPane.showInputDialog("Enter Your Password ");
         String user_name = methods.getUserNameByPassword(password);
-            jButton2.setEnabled(false);
+        jButton2.setEnabled(false);
         if (!"null".equals(user_name)) {
 
             if (checkLower()) {
-                try{
-              ArrayList<ReceivedCart> items = ListCartItems();
-              String rNo=produce();
-              String from=txt_item_from.getText();
-              String reciept_in=txt_item_receipt_no.getText();
-              String totalCash=txt_total_cash.getText();
-              progressBarTrue();
-            for(int a=0;a<items.size();a++){
-            
-            String item_name=items.get(a).getItem_name();
-            String item_type=items.get(a).getTransaction_type();
-            String item_quantity=items.get(a).getItem_new_quantity();
-            String item_quantity_in=items.get(a).getTransaction_quantity_in();
-            String item_cash=items.get(a).getTransaction_cash();
-            int item_id=items.get(a).getItem_id();
-            String transaction_quantity=items.get(a).getTransaction_quantity();
-                
+                try {
+                    ArrayList<ReceivedCart> items = ListCartItems();
+                    String rNo = produce();
+                    String from = txt_item_from.getText();
+                    String reciept_in = txt_item_receipt_no.getText();
+                    String totalCash = txt_total_cash.getText();
+                    progressBarTrue();
+                    for (int a = 0; a < items.size(); a++) {
 
-                if (item_type.equals(Keys.KEY_TRANSACTION_RECIEVE_NEW)) {
+                        String item_name = items.get(a).getItem_name();
+                        String item_type = items.get(a).getTransaction_type();
+                        String item_quantity = items.get(a).getItem_new_quantity();
+                        String item_quantity_in = items.get(a).getTransaction_quantity_in();
+                        String item_cash = items.get(a).getTransaction_cash();
+                        int item_id = items.get(a).getItem_id();
+                        String transaction_quantity = items.get(a).getTransaction_quantity();
+
+                        if (item_type.equals(Keys.KEY_TRANSACTION_RECIEVE_NEW)) {
 //       
-                    
-                    insertNewItem(item_name,item_type,item_quantity,transaction_quantity,item_quantity_in,item_cash,item_id,user_name,rNo,from,reciept_in);
-                }
-                    
 
-                    
-                else if(item_type.equals(Keys.KEY_TRANSACTION_RECEIVE_EXISTING)){
-                        
-                    updateExistingItem(item_name,item_type,item_quantity,transaction_quantity,item_quantity_in,item_cash,item_id,user_name,rNo,from,reciept_in);
-                }
+                            insertNewItem(item_name, item_type, item_quantity, transaction_quantity, item_quantity_in, item_cash, item_id, user_name, rNo, from, reciept_in);
+                        } else if (item_type.equals(Keys.KEY_TRANSACTION_RECEIVE_EXISTING)) {
 
-            }
-            Printing printing=new Printing(rNo, user_name, items,String.valueOf(totalC),from);
-            //Printing(String transactionReceiptNo, String officer, ArrayList<CartPojo> items,String totalCash,String from)
-            
-            jButton2.setEnabled(true);
-            progressBarFalse();
-            refresh();
-            jButton2.setEnabled(false);
-                }
-                catch(Exception m){
+                            updateExistingItem(item_name, item_type, item_quantity, transaction_quantity, item_quantity_in, item_cash, item_id, user_name, rNo, from, reciept_in);
+                        }
+
+                    }
+                    Printing printing = new Printing(rNo, user_name, items, String.valueOf(totalC), from);
+                    //Printing(String transactionReceiptNo, String officer, ArrayList<CartPojo> items,String totalCash,String from)
+
+                    jButton2.setEnabled(true);
+                    progressBarFalse();
+                    refresh();
+                    jButton2.setEnabled(false);
+                } catch (Exception m) {
                     m.printStackTrace();
                 }
-        }else{
-             JOptionPane.showMessageDialog(null, "Fill All Required Fields");   
+            } else {
+                JOptionPane.showMessageDialog(null, "Fill All Required Fields");
             }
-        }
-            
-            else {
+        } else {
             JOptionPane.showMessageDialog(null, "UN-REGISTERD PASSWORD..."
                     + "\n"
                     + "FIND ASSISTANCE FROM SYSTEM ADMINISTRATOR");
         }
-            
-        
-}
-        public void threadExecute() {
+
+    }
+
+    public void threadExecute() {
         Thread log = new Thread() {
             public void run() {
 
-               runn();
+                runn();
             }
         };
         log.start();
@@ -1151,14 +1134,13 @@ private void runn(){
     }//GEN-LAST:event_txt_item_addKeyReleased
 
     private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
-        Calc n=new Calc();
+        Calc n = new Calc();
     }//GEN-LAST:event_jMenuItem5ActionPerformed
     final String uline = "__________________________________________________________________________________";
     final String dline = "----------------------------------------------------------------------------------";
-  
-    
-    public void insertToCart(int item_id) {
-        String  query = "INSERT INTO " + Keys.KEY_RECEIVED_CART_TABLE + "("
+
+    public void insertToCart(int item_id ,String quantity_in) {
+        String query = "INSERT INTO " + Keys.KEY_RECEIVED_CART_TABLE + "("
                 + "" + Keys.KEY_ITEM_ID + ", "
                 + "" + Keys.KEY_ITEM_NAME + ","
                 + "" + Keys.KEY_ITEM_QUANTITY + ","
@@ -1170,66 +1152,58 @@ private void runn(){
                 + "'" + item_id + "',"
                 + "'" + this.txt_item_name.getText() + "',"
                 + "'" + this.txt_item_quantity.getText() + "',"
-                + "'" + this.txt_item_add.getText() + "',"
+                + "'" + quantity_in + "',"
                 + "'" + txt_quantity_in.getText() + "',"
                 + "'" + txt_item_cash.getText() + "',"
-                
-              + "'"+transactionType+"')";
+                + "'" + transactionType + "')";
 
         if (methods.executeSQlQueryN(query) == 1) {
-if(newItem){
-            txt_cart_area.append("" + this.txt_item_name.getText() + " \n                           " + this.txt_item_quantity.getText() + ""
-                    + "                            " + item_id + "  \n");
+            if (newItem) {
+                txt_cart_area.append("" + this.txt_item_name.getText() + " \n                           " + this.txt_item_quantity.getText() + ""
+                        + "                            " + item_id + "  \n");
 
-            clearTop();
-}
-else{
-    txt_cart_area.append("" + this.txt_item_name.getText() + " \n                           " + this.txt_item_add.getText() + ""
-                    + "                            " + item_id + "  \n");
+                clearTop();
+            } else {
+                txt_cart_area.append("" + this.txt_item_name.getText() + " \n                           " + this.txt_item_add.getText() + ""
+                        + "                            " + item_id + "  \n");
 
-            clearTop();
-}
+                clearTop();
+            }
 
         } else {
             JOptionPane.showMessageDialog(null, "ERROR !!! \n Possible Duplicate Items");
         }
     }
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-       if (checkEmpty()) {
-              try{
-            if(txt_item_cash.getText().isEmpty()){
-                 JOptionPane.showMessageDialog(null, "Enter Cash");
+        if (checkEmpty()) {
+            try {
+                if (txt_item_cash.getText().isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "Enter Cash");
+                } else {
+                    totalC = totalC + Double.valueOf(txt_item_cash.getText());
+                    txt_total_cash.setText(String.valueOf(totalC));
+                }
+            } catch (Exception a) {
+
             }
-           else {
-                totalC=totalC+Double.valueOf(txt_item_cash.getText());
-                txt_total_cash.setText(String.valueOf(totalC));
+            if (newItem) {
+                insertToCart(0,txt_item_quantity.getText());
+            } else {
+                insertToCart(Integer.valueOf(txt_item_id.getText()),txt_item_add.getText());
+
             }
+
         }
-        catch(Exception a){
-            
-        } 
-        if(newItem){
-        insertToCart(0);
-       }
-       else{
-          insertToCart(Integer.valueOf(txt_item_id.getText())); 
-           
-       }
-        
-        
-       
-       }
-       
+
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void txt_item_cashKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_item_cashKeyReleased
-        try{
-            int n=Integer.valueOf(txt_item_cash.getText());
-        }
-        catch(Exception nm){
+        try {
+            int n = Integer.valueOf(txt_item_cash.getText());
+        } catch (Exception nm) {
             txt_item_cash.setText("0");
-             JOptionPane.showMessageDialog(null, "Numerical Values Only..If Null Use 0");
-            
+            JOptionPane.showMessageDialog(null, "Numerical Values Only..If Null Use 0");
+
         }
     }//GEN-LAST:event_txt_item_cashKeyReleased
     private void addQuantity() {
@@ -1324,12 +1298,21 @@ else{
     private javax.swing.JTextField txt_table_search;
     private javax.swing.JTextField txt_total_cash;
     // End of variables declaration//GEN-END:variables
-    public void deleteCart(int item_id) {
-        String query = "DELETE FROM " + Keys.KEY_RECEIVED_CART_TABLE + "  WHERE " + Keys.KEY_ITEM_ID + " = '" + item_id + "'";
-        if (methods.executeSQlQueryN(query) == 1) {
+    public void deleteCart(int item_id, int a, String item_name) {
+        if (a == 1) {
+            String query = "DELETE FROM " + Keys.KEY_RECEIVED_CART_TABLE + "  WHERE " + Keys.KEY_ITEM_ID + " = '" + item_id + "'";
+            if (methods.executeSQlQueryN(query) == 1) {
 
+            } else {
+                System.out.println("Error deleteCart");
+            }
         } else {
-            System.out.println("Error deleteCart");
+            String query = "DELETE FROM " + Keys.KEY_RECEIVED_CART_TABLE + "  WHERE " + Keys.KEY_ITEM_NAME + " = '" + item_name + "'";
+            if (methods.executeSQlQueryN(query) == 1) {
+
+            } else {
+                System.out.println("Error deleteCart");
+            }
         }
     }
 

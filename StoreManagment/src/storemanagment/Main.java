@@ -8,11 +8,13 @@ package storemanagment;
 import LogingRgestration.login1;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Desktop;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import static java.lang.Thread.sleep;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -21,10 +23,13 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 import javax.swing.border.Border;
 import storemanagment.BackUpRestore.Restore;
 import storemanagment.BackUpRestore.backup;
+import storemanagment.Configs.AddUsers;
 import storemanagment.Configs.Settings;
+import storemanagment.Configs.about;
 import storemanagment.Give.GiveForm;
 import storemanagment.Recieve.RecieveForm;
 import storemanagment.Transactions.TransactionsForm;
@@ -36,7 +41,7 @@ import storemanagment.Transactions.TransactionsForm;
  */
 public final class Main extends javax.swing.JFrame {
     
-    
+    Methods methods=new Methods();
     //login set
     public static String loggedInName;
     public static String hash="";
@@ -48,12 +53,34 @@ public final class Main extends javax.swing.JFrame {
     /**
      * Creates new form Main
      */
+        public void deleteAllCart() {
+        //String query = "DELETE FROM "+Keys.KEY_CART_TABLE+"  WHERE "+Keys.KEY_ITEM_ID+" = '" +item_id+"'";
+        String query = "DELETE FROM " + Keys.KEY_RECEIVED_CART_TABLE + " ";
+        if (methods.executeSQlQueryN(query) == 1) {
+            //JOptionPane.showMessageDialog(null, "READY");
+        } else {
+            System.out.println("Error deleteCartR");
+        }
+    }
+           public void deleteAlCart() {
+        //String query = "DELETE FROM "+Keys.KEY_CART_TABLE+"  WHERE "+Keys.KEY_ITEM_ID+" = '" +item_id+"'";
+        String query = "DELETE FROM " + Keys.KEY_CART_TABLE + " ";
+        if (methods.executeSQlQueryN(query) == 1) {
+           // JOptionPane.showMessageDialog(null, "READY");
+        } else {
+            System.out.println("Error deleteCartG");
+        }
+    }
+    
+    
     public Main() {
         initComponents();
         setTilteImage();
         pic();
         getTime();
        if(logged==0){
+           deleteAlCart();
+           deleteAllCart();
          login();
        }
     }
@@ -425,6 +452,11 @@ clock.start();
         jMenu1.add(jMenuItem20);
 
         jMenuItem21.setText("Exit");
+        jMenuItem21.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem21ActionPerformed(evt);
+            }
+        });
         jMenu1.add(jMenuItem21);
 
         jMenuBar1.add(jMenu1);
@@ -663,7 +695,9 @@ clock.start();
     }//GEN-LAST:event_jMenuItem8ActionPerformed
 
     private void jMenuItem20ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem20ActionPerformed
-        // TODO add your handling code here:
+        a();
+        logged=0;
+        this.setEnabled(false);
     }//GEN-LAST:event_jMenuItem20ActionPerformed
 
     private void jMenuItem9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem9ActionPerformed
@@ -729,7 +763,8 @@ clock.start();
     }//GEN-LAST:event_jMenuItem19ActionPerformed
 
     private void jMenuItem24ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem24ActionPerformed
-        // TODO add your handling code here:
+      about ab=new about();
+      ab.setVisible(true);
     }//GEN-LAST:event_jMenuItem24ActionPerformed
 
     private void jMenuItem22ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem22ActionPerformed
@@ -738,18 +773,35 @@ clock.start();
     }//GEN-LAST:event_jMenuItem22ActionPerformed
 
     private void jMenuItem23ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem23ActionPerformed
-        // TODO add your handling code here:
+        if(hash.length()<22){
+            JOptionPane.showMessageDialog(null, "YOU MUST HAVE ADMINISTRATOR CLEARANCE");
+        }
+        else{
+            AddUsers addUsers=new AddUsers();
+            addUsers.setVisible(true);
+        }
     }//GEN-LAST:event_jMenuItem23ActionPerformed
 
     private void jMenuItem25ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem25ActionPerformed
-      // ArrayList<CartPojo> items=null;
-      //  Printing print=new Printing("11","333",items);
+       try
+    {
+      String url = "help.htm";
+      Desktop.getDesktop().browse(URI.create(url));
+    }
+    catch (IOException e1)
+    {
+       JOptionPane.showMessageDialog(null, "NOT AVAILABLE");
+    }
     }//GEN-LAST:event_jMenuItem25ActionPerformed
 
     private void jMenuItem26ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem26ActionPerformed
         loaned ln=new loaned();
         ln.setVisible(true);
     }//GEN-LAST:event_jMenuItem26ActionPerformed
+
+    private void jMenuItem21ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem21ActionPerformed
+        System.exit(1);
+    }//GEN-LAST:event_jMenuItem21ActionPerformed
 
     /**
      * @param args the command line arguments
