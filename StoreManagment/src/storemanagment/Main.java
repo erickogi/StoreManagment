@@ -6,15 +6,24 @@
 package storemanagment;
 
 import LogingRgestration.login1;
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Desktop;
+import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import static java.lang.Thread.sleep;
 import java.net.URI;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -23,8 +32,12 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.border.Border;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Row;
 import storemanagment.BackUpRestore.Restore;
 import storemanagment.BackUpRestore.backup;
 import storemanagment.Configs.AddUsers;
@@ -48,6 +61,12 @@ public final class Main extends javax.swing.JFrame {
     public static int on;
     public static  int logged=0;
     public static int  ch=0;
+    
+    
+    
+      String filePathi;
+   String tti;
+  String fileurlpi = null;
   //end login set
     
     /**
@@ -71,7 +90,38 @@ public final class Main extends javax.swing.JFrame {
             System.out.println("Error deleteCartG");
         }
     }
-    
+           public static void applyQualityRenderingHints(Graphics2D g2d) {
+
+    g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+    g2d.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+    g2d.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+    g2d.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+    g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+    g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+    g2d.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+
+}
+    public BufferedImage image(BufferedImage master1){
+         BufferedImage masked=null;
+         BufferedImage master = master1;
+         int diameter = Math.min(master.getWidth(), master.getHeight());
+         BufferedImage mask = new BufferedImage(master.getWidth(), master.getHeight(), BufferedImage.TYPE_INT_ARGB);
+         Graphics2D g2d = mask.createGraphics();
+         applyQualityRenderingHints(g2d);
+         g2d.fillOval(0, 0, diameter - 1, diameter - 1);
+         g2d.dispose();
+         masked = new BufferedImage(diameter, diameter, BufferedImage.TYPE_INT_ARGB);
+         g2d = masked.createGraphics();
+         applyQualityRenderingHints(g2d);
+         int x = (diameter - master.getWidth()) / 2;
+         int y = (diameter - master.getHeight()) / 2;
+         g2d.drawImage(master, x, y, null);
+         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.DST_IN));
+         g2d.drawImage(mask, 0, 0, null);
+         g2d.dispose();
+        return masked;
+    }
     
     public Main() {
         initComponents();
@@ -86,18 +136,80 @@ public final class Main extends javax.swing.JFrame {
     }
      public final void pic(){
          BufferedImage d;
+         Image f;
     try {
          Container cont=this.getContentPane();
             //;
         d = ImageIO.read(Main.class.getResource("/storemanagment/admin.jpg"));
-          Image f=d.getScaledInstance(labale_background.getWidth(), labale_background.getHeight(),Image.SCALE_SMOOTH);
+        if(showimg()!=null){
+           f=showimg().getScaledInstance(labale_background.getWidth(), labale_background.getHeight(),Image.SCALE_SMOOTH);
          // 
+        }
+        else{
+             f=image(ImageIO.read(Main.class.getResource("/storemanagment/admin.jpg"))).getScaledInstance(labale_background.getWidth(), labale_background.getHeight(),Image.SCALE_SMOOTH);
+        }
         
        labale_background.setIcon(new ImageIcon(f));
     } catch (IOException ex) {
         Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-    }       
+    }   catch (Exception ex) {       
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }       
     }
+      public BufferedImage showimg()
+    throws Exception
+  {
+      BufferedImage img = null;
+    try
+    {
+      
+                Connection con = methods.getConnection();
+      Statement st2 = con.createStatement();
+      
+      ResultSet res7 = st2.executeQuery("SELECT imgurl FROM prefrences  WHERE id=1");
+      if (res7.next()) {
+        this.filePathi = res7.getString("imgurl");
+      } else {
+       // JOptionPane.showMessageDialog(null, "error loading image \n  make sure image is in images folder ");
+      }
+      st2.close();
+      res7.close();
+      con.close();
+      String op = "image";
+      if (this.filePathi.equals(op))
+      {
+       // this.img.setIcon(null);
+       // this.img.setIcon(null);
+       // this.img.setText(" no image");
+      }
+      else
+      {
+        
+        try
+        {
+          img = image(ImageIO.read(new File(this.filePathi)));
+          this.fileurlpi = this.filePathi.replace("\\", "\\\\");
+        }
+        catch (IOException e)
+        {
+          //JOptionPane.showMessageDialog(null, "error loading image \n  make sure image is in images folder ");
+          
+          //this.img.setIcon(null);
+          //this.img.setText(" no image");
+        }
+//        Image dimg = img.getScaledInstance(this.img.getWidth(), this.img.getHeight(), 4);
+//        
+//        ImageIcon icon = new ImageIcon(dimg);
+//        this.img.setText("");
+        //this.img.setIcon(icon);
+      }
+    }
+    catch (Exception ex)
+    {
+      System.out.println(ex.getMessage());
+    }
+    return img;
+  }
      public final void login(){
 Thread log=new Thread(){
 public void run(){
@@ -234,6 +346,7 @@ clock.start();
             Methods n=new Methods();
             String t= n.setTitle();
             this.setTitle(t);
+            txt_title.setText(t);
             String i=n.setIconImage();
             this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource(i)));
             
@@ -292,10 +405,13 @@ clock.start();
         txttymer = new javax.swing.JLabel();
         labale_background_pic = new javax.swing.JLabel();
         labale_background = new javax.swing.JLabel();
+        txt_title = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem18 = new javax.swing.JMenuItem();
         jMenuItem19 = new javax.swing.JMenuItem();
+        jMenuItem27 = new javax.swing.JMenuItem();
+        jMenuItem28 = new javax.swing.JMenuItem();
         jMenuItem20 = new javax.swing.JMenuItem();
         jMenuItem21 = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
@@ -403,25 +519,37 @@ clock.start();
 
         labale_background.setText("jLabel1");
 
+        txt_title.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
+        txt_title.setText("jLabel1");
+        txt_title.setHorizontalTextPosition(javax.swing.SwingConstants.LEFT);
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 1532, Short.MAX_VALUE)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(40, 40, 40)
                 .addComponent(labale_background_pic, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(labale_background, javax.swing.GroupLayout.PREFERRED_SIZE, 1532, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(txt_title))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(514, 514, 514)
+                        .addComponent(labale_background, javax.swing.GroupLayout.PREFERRED_SIZE, 395, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(labale_background, javax.swing.GroupLayout.PREFERRED_SIZE, 708, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(18, 18, 18)
+                .addComponent(txt_title)
+                .addGap(36, 36, 36)
+                .addComponent(labale_background, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(401, 401, 401)
                 .addComponent(labale_background_pic, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -442,6 +570,22 @@ clock.start();
             }
         });
         jMenu1.add(jMenuItem19);
+
+        jMenuItem27.setText("XLS Transactions");
+        jMenuItem27.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem27ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem27);
+
+        jMenuItem28.setText("XLS Inventory");
+        jMenuItem28.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem28ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem28);
 
         jMenuItem20.setText("Log-Out");
         jMenuItem20.addActionListener(new java.awt.event.ActionListener() {
@@ -505,7 +649,7 @@ clock.start();
 
         jMenuBar1.add(jMenu3);
 
-        jMenu4.setText("Give");
+        jMenu4.setText("Issue");
 
         jMenuItem5.setText("Central Store");
         jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
@@ -773,7 +917,7 @@ clock.start();
     }//GEN-LAST:event_jMenuItem22ActionPerformed
 
     private void jMenuItem23ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem23ActionPerformed
-        if(hash.length()<22){
+        if(hash.length()<0){
             JOptionPane.showMessageDialog(null, "YOU MUST HAVE ADMINISTRATOR CLEARANCE");
         }
         else{
@@ -803,6 +947,222 @@ clock.start();
         System.exit(1);
     }//GEN-LAST:event_jMenuItem21ActionPerformed
 
+    private void jMenuItem27ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem27ActionPerformed
+        int result;
+        
+    chooser = new JFileChooser(); 
+    chooser.setCurrentDirectory(new java.io.File("."));
+    chooser.setDialogTitle(choosertitle);
+    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+    //
+    // disable the "All files" option.
+    //
+    chooser.setAcceptAllFileFilterUsed(false);
+    //    
+    if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { 
+      System.out.println("getCurrentDirectory(): " 
+         +  chooser.getCurrentDirectory());
+      System.out.println("getSelectedFile() : " 
+         +  chooser.getSelectedFile());
+      chooser.getSelectedFile();
+      
+      
+      xls();
+      }
+    else {
+      System.out.println("No Selection ");
+      }
+
+
+    }//GEN-LAST:event_jMenuItem27ActionPerformed
+
+    private void jMenuItem28ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem28ActionPerformed
+         int result;
+        
+    chooser = new JFileChooser(); 
+    chooser.setCurrentDirectory(new java.io.File("."));
+    chooser.setDialogTitle(choosertitle);
+    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+    //
+    // disable the "All files" option.
+    //
+    chooser.setAcceptAllFileFilterUsed(false);
+    //    
+    if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { 
+      System.out.println("getCurrentDirectory(): " 
+         +  chooser.getCurrentDirectory());
+      System.out.println("getSelectedFile() : " 
+         +  chooser.getSelectedFile());
+      chooser.getSelectedFile();
+      
+      
+      inventory();
+      }
+    else {
+      System.out.println("No Selection ");
+      }
+
+
+    }//GEN-LAST:event_jMenuItem28ActionPerformed
+    private void jButton1ActionPerformed() {                                         
+                
+
+
+
+    } 
+    public void xls(){
+            try{
+
+        Connection con = methods.getConnection();
+Statement statement = con.createStatement();
+FileOutputStream fileOut;
+fileOut = new FileOutputStream(""+chooser.getSelectedFile()+"\\transactions.xls");
+HSSFWorkbook workbook = new HSSFWorkbook();
+HSSFSheet worksheet = workbook.createSheet("Sheet 0");
+Row row1 = worksheet.createRow((short)0);
+row1.createCell(0).setCellValue("T.ID");
+row1.createCell(1).setCellValue("T.ITEM");
+row1.createCell(2).setCellValue("T.QUANTITY");
+row1.createCell(3).setCellValue("T.UNIT");
+
+row1.createCell(4).setCellValue("T.TYPE");
+row1.createCell(5).setCellValue("T,TO");
+row1.createCell(6).setCellValue("T.FORM");
+row1.createCell(7).setCellValue("T.I.CASH");
+row1.createCell(8).setCellValue("T.T.CASH");
+row1.createCell(9).setCellValue("T.R.IN");
+row1.createCell(10).setCellValue("T.R.OUT");
+
+row1.createCell(11).setCellValue("T.DATE");
+row1.createCell(12).setCellValue("T.OFFICER");
+row1.createCell(13).setCellValue("T.REC.BY");
+
+
+// public static final String KEY_TRANSACTION_ID="transaction_id";
+//    public static final String KEY_TRANSACTION_QUANTITY="transaction_quantity";
+//    public static final String KEY_TRANSACTION_TYPE="transaction_type";
+//    public static final String KEY_TRANSACTION_REVERT_STATUS="transaction_revert_status";
+//    
+//    public static final String KEY_TRANSACTION_QUANTITY_IN="transaction_quantity_in";
+//    public static final String KEY_TRANSACTION_TO="transaction_to";
+//    public static final String KEY_TRANSACTION_FROM="transaction_from";
+//    public static final String KEY_TRANSACTION_CASH="transaction_cash";
+//    public static final String KEY_TRANSACTION_RECEIPT_RECIEVED="transaction_receipt_no_in";
+//    public static final String KEY_TRANSACTION_RECEIPT_GIVEN="transaction_receipt_no_out";
+//    public static final String KEY_TRANSACTION_OFFICER_INCHARGE="transaction_officer_incharge";
+//    public static final String KEY_TRANSACTION_TIME="transaction_time";
+//    
+//    
+//    public static final String KEY_TRANSACTION_ITEM_CASH="transaction_item_cash";
+//    public static final String KEY_TRANSACTION_PURCHASE_ORDER_NO="transaction_purchase_order_no";
+//    public static final String KEY_TRANSACTION_FROM_ADDRESS="transaction_from_address";
+//    public static final String KEY_TRANSACTION_RECEIVED_BY="transaction_received_by";
+//    public static final String KEY_TRANSACTION_RECEIVER_DESIGNATION="transaction_receiver_designation";
+//    public static final String KEY_TRANSACTION_DEPARTMENT="transaction_department";
+//    public static final String KEY_TRANSACTION_ITEM_DEIVERED_BY="transaction_delivered_by";
+//row1.createCell(10).setCellValue("DATE");
+Row row2 ;
+ResultSet rs = statement.executeQuery("SELECT * FROM "+Keys.KEY_TRANSACTION_TABLE+"");
+while(rs.next()){
+int a = rs.getRow();
+
+
+row1.createCell(0).setCellValue("T.ID");
+row1.createCell(1).setCellValue("T.ITEM");
+row1.createCell(2).setCellValue("T.QUANTITY");
+row1.createCell(3).setCellValue("T.UNIT");
+
+row1.createCell(4).setCellValue("T.TYPE");
+row1.createCell(5).setCellValue("T,TO");
+row1.createCell(6).setCellValue("T.FORM");
+row1.createCell(7).setCellValue("T.I.CASH");
+row1.createCell(8).setCellValue("T.T.CASH");
+row1.createCell(9).setCellValue("T.R.IN");
+row1.createCell(10).setCellValue("T.R.OUT");
+
+row1.createCell(11).setCellValue("T.DATE");
+row1.createCell(12).setCellValue("T.OFFICER");
+row1.createCell(13).setCellValue("T.REC.BY");
+row2 = worksheet.createRow((short)a);
+row2.createCell(0).setCellValue(rs.getString(Keys.KEY_TRANSACTION_ID));
+row2.createCell(1).setCellValue(rs.getString(Keys.KEY_ITEM_NAME));
+row2.createCell(2).setCellValue(rs.getString(Keys.KEY_TRANSACTION_QUANTITY));
+row2.createCell(3).setCellValue(rs.getString(Keys.KEY_TRANSACTION_QUANTITY_IN));
+row2.createCell(4).setCellValue(rs.getString(Keys.KEY_TRANSACTION_TYPE));
+row2.createCell(5).setCellValue(rs.getString(Keys.KEY_TRANSACTION_TO));
+row2.createCell(6).setCellValue(rs.getString(Keys.KEY_TRANSACTION_FROM));
+row2.createCell(7).setCellValue(rs.getString(Keys.KEY_TRANSACTION_ITEM_CASH));
+row2.createCell(8).setCellValue(rs.getString(Keys.KEY_TRANSACTION_CASH));
+row2.createCell(9).setCellValue(rs.getString(Keys.KEY_TRANSACTION_RECEIPT_RECIEVED));
+
+row2.createCell(10).setCellValue(rs.getString(Keys.KEY_TRANSACTION_RECEIPT_GIVEN));
+row2.createCell(11).setCellValue(rs.getString(Keys.KEY_TRANSACTION_TIME));
+row2.createCell(12).setCellValue(rs.getString(Keys.KEY_TRANSACTION_OFFICER_INCHARGE));
+row2.createCell(13).setCellValue(rs.getString(Keys.KEY_TRANSACTION_RECEIVED_BY));
+
+}
+workbook.write(fileOut);
+fileOut.flush();
+fileOut.close();
+rs.close();statement.close();
+
+con.close();
+System.out.println("Export Success");
+
+}catch(SQLException ex){
+System.out.println(ex);
+}catch(IOException ioe){
+System.out.println(ioe);
+}
+}
+    public void inventory(){
+            try{
+
+        Connection con = methods.getConnection();
+Statement statement = con.createStatement();
+FileOutputStream fileOut;
+fileOut = new FileOutputStream(""+chooser.getSelectedFile()+"\\inventory.xls");
+HSSFWorkbook workbook = new HSSFWorkbook();
+HSSFSheet worksheet = workbook.createSheet("Sheet 0");
+Row row1 = worksheet.createRow((short)0);
+row1.createCell(0).setCellValue("ID");
+row1.createCell(1).setCellValue("ITEM");
+row1.createCell(2).setCellValue("QUANTITY");
+row1.createCell(3).setCellValue("UNITS");
+row1.createCell(4).setCellValue("STORE");
+
+Row row2 ;
+ResultSet rs = statement.executeQuery("SELECT * FROM "+Keys.KEY_ITEMS_TABLE+"");
+while(rs.next()){
+int a = rs.getRow();
+row2 = worksheet.createRow((short)a);
+row2.createCell(0).setCellValue(rs.getString(Keys.KEY_ITEM_ID));
+row2.createCell(1).setCellValue(rs.getString(Keys.KEY_ITEM_NAME));
+row2.createCell(2).setCellValue(rs.getString(Keys.KEY_ITEM_QUANTITY));
+row2.createCell(3).setCellValue(rs.getString(Keys.KEY_ITEM_QUANTITY_IN));
+row2.createCell(4).setCellValue(rs.getString(Keys.KEY_ITEM_TYPE));
+
+
+}
+workbook.write(fileOut);
+fileOut.flush();
+fileOut.close();
+rs.close();statement.close();
+
+con.close();
+
+System.out.println("Export Success");
+}catch(SQLException ex){
+System.out.println(ex);
+}catch(IOException ioe){
+System.out.println(ioe);
+}
+}
+   JFileChooser chooser;
+   String choosertitle;
+
+String filePath;
+String tt;
     /**
      * @param args the command line arguments
      */
@@ -871,6 +1231,8 @@ clock.start();
     private javax.swing.JMenuItem jMenuItem24;
     private javax.swing.JMenuItem jMenuItem25;
     private javax.swing.JMenuItem jMenuItem26;
+    private javax.swing.JMenuItem jMenuItem27;
+    private javax.swing.JMenuItem jMenuItem28;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
@@ -882,6 +1244,7 @@ clock.start();
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JLabel labale_background;
     private javax.swing.JLabel labale_background_pic;
+    private javax.swing.JLabel txt_title;
     private javax.swing.JLabel txttymer;
     // End of variables declaration//GEN-END:variables
 }

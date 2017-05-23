@@ -23,13 +23,16 @@ import java.awt.Container;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
 import storemanagment.CartPojo;
 import storemanagment.ItemsPojo;
 import storemanagment.Keys;
+import storemanagment.Main;
 import storemanagment.Methods;
 import storemanagment.Printing;
 import storemanagment.Recieve.RecieveForm;
@@ -144,7 +147,7 @@ public class GiveForm extends javax.swing.JFrame {
         ArrayList<ItemsPojo> data = ListItems(txt_table_search.getText());
         DefaultTableModel model = new DefaultTableModel();
         // public ItemsPojo(int item_id, String item_name, String item_type, String item_quantity, String item_quantity_in, Date item_updated_at)
-        model.setColumnIdentifiers(new Object[]{"ID", "NAME", "QUANTITY", "IN"});
+        model.setColumnIdentifiers(new Object[]{"ID", "NAME", "QUANTITY", "UNIT"});
         Object[] row = new Object[4];
         for (int i = 0; i < data.size(); i++) {
             row[0] = ((ItemsPojo) data.get(i)).getItem_id();
@@ -394,6 +397,8 @@ public class GiveForm extends javax.swing.JFrame {
         jMenu2 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItem2 = new javax.swing.JMenuItem();
+        jMenuItem6 = new javax.swing.JMenuItem();
+        jMenuItem7 = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
         jMenuItem5 = new javax.swing.JMenuItem();
 
@@ -449,7 +454,7 @@ public class GiveForm extends javax.swing.JFrame {
 
         txt_item_quantity.setEditable(false);
 
-        txt_in.setText("IN");
+        txt_in.setText("UNIT");
 
         jRadioButton1.setText("RETURNABLE");
 
@@ -650,6 +655,22 @@ public class GiveForm extends javax.swing.JFrame {
         });
         jMenu2.add(jMenuItem2);
 
+        jMenuItem6.setText("Stock Taking");
+        jMenuItem6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem6ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem6);
+
+        jMenuItem7.setText("Inventory Printing");
+        jMenuItem7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem7ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem7);
+
         jMenuBar1.add(jMenu2);
 
         jMenu3.setText("Tools");
@@ -717,7 +738,25 @@ public class GiveForm extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
- public void threadExecute() {
+ 
+  public static String gnetName() {
+    JPasswordField jpf = new JPasswordField(24);
+    JLabel jl = new JLabel("Enter Your Password: ");
+    Box box = Box.createHorizontalBox();
+    box.add(jl);
+    box.add(jpf);
+   // box.getRootPane().setDefaultButton(JOptionPane.OK_CANCEL_OPTION);
+    int x = JOptionPane.showConfirmDialog(null, box, "Password Entry", JOptionPane.OK_CANCEL_OPTION,JOptionPane.DEFAULT_OPTION);
+
+        
+    
+    if (x == JOptionPane.OK_OPTION) {
+      return jpf.getText();
+    }
+    return null;
+  }
+    
+    public void threadExecute() {
         Thread log = new Thread() {
             public void run() {
 
@@ -725,7 +764,9 @@ public class GiveForm extends javax.swing.JFrame {
                     jProgressBar1.setVisible(true);
                     jProgressBar1.setBorderPainted(true);
                     jProgressBar1.setIndeterminate(true);
-                    String password = JOptionPane.showInputDialog("Enter Your Password ");
+                    String password = gnetName();
+                    if(password!=null){
+                            //JOptionPane.showInputDialog("Enter Your Password ");
                     String user_name = methods.getUserNameByPassword(password);
 
 
@@ -748,6 +789,11 @@ public class GiveForm extends javax.swing.JFrame {
 //                    });
 
                     transact(user_name);
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(null, "You have to select OK");
+                    }
+                    
                 } catch (Exception b) {
                     System.out.println("Error");
                 }
@@ -954,6 +1000,14 @@ public class GiveForm extends javax.swing.JFrame {
         Printing print=new Printing(storeType, user_name, ListItems(txt_table_search.getText()),"INV")  ;  
                     }
     }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
+        Printing printing=new Printing(storeType, Main.loggedInName, ListItems(""),10);
+    }//GEN-LAST:event_jMenuItem6ActionPerformed
+
+    private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenuItem7ActionPerformed
     private void reduceQuantity() {
 
         try {
@@ -1025,6 +1079,8 @@ public class GiveForm extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
+    private javax.swing.JMenuItem jMenuItem6;
+    private javax.swing.JMenuItem jMenuItem7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;

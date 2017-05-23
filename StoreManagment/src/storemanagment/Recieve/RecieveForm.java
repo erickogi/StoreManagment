@@ -19,13 +19,17 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.Box;
 import javax.swing.ButtonGroup;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import storemanagment.Give.GiveForm;
 import storemanagment.ItemsPojo;
 import storemanagment.Keys;
+import storemanagment.Main;
 import storemanagment.Methods;
 import storemanagment.Printing;
 import storemanagment.ReceivedCart;
@@ -41,6 +45,8 @@ public class RecieveForm extends javax.swing.JFrame {
     TransactionsPojo transactionsPojo;
     ItemsPojo itemPojo;
     Methods methods = new Methods();
+    
+    
 
     private double totalC = 0.0;
 
@@ -65,7 +71,7 @@ public class RecieveForm extends javax.swing.JFrame {
 
     private void setCart() {
         txt_cart_area.setText(null);
-        txt_cart_area.append("Item :                            Qty :                            Id  \n");
+        txt_cart_area.append("Item :                            Qty :                            Id        Total(Ksh)\n");
         txt_cart_area.append(uline + "\n");
 
     }
@@ -82,6 +88,8 @@ public class RecieveForm extends javax.swing.JFrame {
         setCart();
         setTilteImage();
         //deleteAllCart();
+        txt_received_by.setText(Main.loggedInName);
+        txt_department.setText(storeType);
         jRadioButton_existing_item.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -110,7 +118,7 @@ public class RecieveForm extends javax.swing.JFrame {
 
     public RecieveForm() {
         initComponents();
-        txt_item_cash.setText("0");
+        txt_item_total_cash.setText("0");
         radiog.add(jRadioButton_existing_item);
         radiog.add(jRadioButton_new_item);
         jRadioButton_existing_item.setSelected(true);
@@ -171,7 +179,13 @@ public class RecieveForm extends javax.swing.JFrame {
             if (txt_item_name.getText().isEmpty()
                     || txt_item_quantity.getText().isEmpty()
                     || txt_quantity_in.getText().isEmpty()
-                    || txt_item_cash.getText().isEmpty()) // || txt_item_receipt_no.getText().isEmpty()
+                    || txt_item_total_cash.getText().isEmpty()
+                    
+                    || txt_purchase_order_no.getText().isEmpty()
+                    || txt_item_cash.getText().isEmpty()
+                    
+                    
+                    ) // || txt_item_receipt_no.getText().isEmpty()
             // || txt_item_from.getText().isEmpty())
             {
 
@@ -184,7 +198,7 @@ public class RecieveForm extends javax.swing.JFrame {
                 || txt_item_id.getText().isEmpty()
                 || txt_item_quantity.getText().isEmpty()
                 || txt_quantity_in.getText().isEmpty()
-                || txt_item_cash.getText().isEmpty()
+                || txt_item_total_cash.getText().isEmpty()
                 || txt_item_add.getText().isEmpty()) // || txt_item_receipt_no.getText().isEmpty()
         // || txt_item_from.getText().isEmpty()) 
         {
@@ -199,7 +213,21 @@ public class RecieveForm extends javax.swing.JFrame {
         boolean okay = false;
 
         if (txt_item_receipt_no.getText().isEmpty()
-                || txt_item_from.getText().isEmpty()) {
+                || txt_item_from.getText().isEmpty()
+                    
+                    
+                  ||txt_from_address.getText().isEmpty()
+                    ||txt_received_by.getText().isEmpty()
+                    ||txt_designation.getText().isEmpty()
+                    ||txt_department.getText().isEmpty()
+                    ||txt_delivered_by.getText().isEmpty()
+                    
+                    
+                   // String totalCash = txt_total_cash.getText();
+                
+                
+                
+                ) {
 
             JOptionPane.showMessageDialog(null, "Fill All Details");
 
@@ -234,7 +262,10 @@ public class RecieveForm extends javax.swing.JFrame {
             String officer_in_charge,
             String rNo,
             String from,
-            String receipt_in
+            String receipt_in,
+            String item_i_cash,
+            String item_POD,
+            String fromAddress,String receivedBy,String designation,String department,String deliveredBy
     ) {
 
         String query = "INSERT INTO items_table("
@@ -252,6 +283,8 @@ public class RecieveForm extends javax.swing.JFrame {
 
         if (methods.executeSQlQueryN(query) == 1) {
             int id = getItemIdByName(item_name);
+
+      
             setTransaction(
                     item_name,
                     item_type,
@@ -264,7 +297,10 @@ public class RecieveForm extends javax.swing.JFrame {
                     rNo,
                     from,
                     receipt_in,
-                    Keys.KEY_TRANSACTION_RECIEVE_NEW
+                    Keys.KEY_TRANSACTION_RECIEVE_NEW,
+                    item_i_cash,
+                     item_POD,
+                    fromAddress,receivedBy,designation,department,deliveredBy
             );
         } else {
 
@@ -284,7 +320,12 @@ public class RecieveForm extends javax.swing.JFrame {
             String rNo,
             String from,
             String receipt_in,
-            String transactiontype) {
+            String transactiontype,
+            String item_i_cash,
+            String item_POD,
+            String fromAddress,String receivedBy,String designation,String department,String deliveredBy
+            
+    ) {
         //int id=getItemIdByName(item_name);
         String nullValue = "--";
 
@@ -301,7 +342,14 @@ public class RecieveForm extends javax.swing.JFrame {
                 + "" + Keys.KEY_TRANSACTION_RECEIPT_RECIEVED + ","
                 + "" + Keys.KEY_TRANSACTION_RECEIPT_GIVEN + ","
                 + "" + Keys.KEY_TRANSACTION_OFFICER_INCHARGE + ","
-                + "" + Keys.KEY_TRANSACTION_TIME + ")"
+                +""+ Keys.KEY_TRANSACTION_ITEM_CASH + ","
+                +""+ Keys.KEY_TRANSACTION_PURCHASE_ORDER_NO + ","
+                + ""+Keys.KEY_TRANSACTION_FROM_ADDRESS + ","
+                +""+ Keys.KEY_TRANSACTION_RECEIVED_BY + ","
+                +""+ Keys.KEY_TRANSACTION_RECEIVER_DESIGNATION + ","
+                +""+ Keys.KEY_TRANSACTION_DEPARTMENT + ","
+                + ""+Keys.KEY_TRANSACTION_ITEM_DEIVERED_BY + ","
+                + ""+ Keys.KEY_TRANSACTION_TIME +  ")"
                 + " VALUES ("
                 + "'" + item_id + "',"
                 + "'" + item_name + "',"
@@ -314,7 +362,15 @@ public class RecieveForm extends javax.swing.JFrame {
                 + "'" + item_cash + "',"
                 + "'" + receipt_in + "',"
                 + "'" + rNo + "',"
-                + "'" + officer_in_charge + "',now())";
+                + "'" + officer_in_charge + "',"
+                + "'"+item_i_cash+"',"
+                + "'"+item_POD+"',"
+                + "'"+fromAddress+"',"
+                + "'"+receivedBy+"',"
+                + "'"+designation+"',"
+                + "'"+department+"',"
+                + "'"+deliveredBy+"'"
+                + ",now())";
 
         if (methods.executeSQlQueryN(query) == 1) {
             if (transactiontype.equals(Keys.KEY_TRANSACTION_RECEIVE_EXISTING)) {
@@ -326,17 +382,10 @@ public class RecieveForm extends javax.swing.JFrame {
     }
 
     void updateExistingItem(
-            String item_name,
-            String item_type,
-            String item_quantity,
-            String transaction_quantity,
-            String item_quantity_in,
-            String item_cash,
-            int item_id,
-            String officer_in_charge,
-            String rNo,
-            String from,
-            String receipt_in
+            String item_name,String item_type,String item_quantity,String transaction_quantity,String item_quantity_in,String item_cash,
+            int item_id,String officer_in_charge,String rNo,String from,String receipt_in,String item_i_cash,String item_POD,
+           String fromAddress,String receivedBy,String designation,String department,String deliveredBy
+            
     ) {
 
         String query = "UPDATE " + Keys.KEY_ITEMS_TABLE + " "
@@ -357,7 +406,32 @@ public class RecieveForm extends javax.swing.JFrame {
                     rNo,
                     from,
                     receipt_in,
-                    Keys.KEY_TRANSACTION_RECEIVE_EXISTING);
+                    Keys.KEY_TRANSACTION_RECEIVE_EXISTING,
+                    item_i_cash,
+                    item_POD,
+                    fromAddress,receivedBy,designation,department,deliveredBy
+//                    
+//                     + "" + Keys.KEY_ITEM_ID + ","
+//                + "" + Keys.KEY_ITEM_NAME + ","
+//                + " " + Keys.KEY_ITEM_TYPE + ","
+//                + "" + Keys.KEY_TRANSACTION_QUANTITY + ","
+//                + "" + Keys.KEY_TRANSACTION_TYPE + ","
+//                + "" + Keys.KEY_TRANSACTION_QUANTITY_IN + ","
+//                + "" + Keys.KEY_TRANSACTION_TO + ","
+//                + "" + Keys.KEY_TRANSACTION_FROM + ","
+//                + "" + Keys.KEY_TRANSACTION_CASH + ","
+//                + "" + Keys.KEY_TRANSACTION_RECEIPT_RECIEVED + ","
+//                + "" + Keys.KEY_TRANSACTION_RECEIPT_GIVEN + ","
+//                + "" + Keys.KEY_TRANSACTION_OFFICER_INCHARGE + ","
+//                +""+ Keys.KEY_TRANSACTION_ITEM_CASH + ","
+//                +""+ Keys.KEY_TRANSACTION_PURCHASE_ORDER_NO + ","
+//                + ""+Keys.KEY_TRANSACTION_FROM_ADDRESS + ","
+//                +""+ Keys.KEY_TRANSACTION_RECEIVED_BY + ","
+//                +""+ Keys.KEY_TRANSACTION_RECEIVER_DESIGNATION + ","
+//                +""+ Keys.KEY_TRANSACTION_DEPARTMENT + ","
+//                + ""+Keys.KEY_TRANSACTION_ITEM_DEIVERED_BY + ","
+//                + ""+ Keys.KEY_TRANSACTION_TIME +  ")"
+            );
         }
 
     }
@@ -452,7 +526,8 @@ public class RecieveForm extends javax.swing.JFrame {
 
         if (methods.executeSQlQueryN(query) == 1) {
             deleteCart(item_id, a, item_name);
-            //clearTop();
+            clearTop();
+            clearAll();
 
         } else {
 
@@ -462,7 +537,7 @@ public class RecieveForm extends javax.swing.JFrame {
 
     private void clearAll() {
         txt_item_add.setText("");
-        txt_item_cash.setText("");
+        txt_item_total_cash.setText("");
         txt_item_from.setText("");
         txt_item_id.setText("");
         txt_item_name.setText("");
@@ -470,6 +545,8 @@ public class RecieveForm extends javax.swing.JFrame {
         txt_item_receipt_no.setText("");
         txt_quantity_in.setText("");
         txt_table_search.setText("");
+         txt_purchase_order_no.setText("");
+                    txt_item_cash.setText("");
 
         jRadioButton_existing_item.setSelected(true);
         txt_item_name.setEditable(false);
@@ -480,11 +557,20 @@ public class RecieveForm extends javax.swing.JFrame {
         balanceQuantity = 0.0;
         totalC = 0.0;
         txt_cart_area.setText("");
+        
+        
+        
+        txt_from_address.setText("");
+        txt_received_by.setText("");
+        txt_designation.setText("");
+        txt_department.setText("");
+        txt_delivered_by.setText("");
+        txt_total_cash.setText("");
     }
 
     void clearTop() {
         txt_item_add.setText("");
-        txt_item_cash.setText("");
+        txt_item_total_cash.setText("");
 
         txt_item_id.setText("");
         txt_item_name.setText("");
@@ -498,8 +584,12 @@ public class RecieveForm extends javax.swing.JFrame {
         txt_item_quantity.setEditable(false);
         txt_quantity_in.setEditable(false);
         txt_item_add.setEditable(true);
+        
+        txt_item_cash.setText("");
         newItem = false;
         balanceQuantity = 0.0;
+        
+                    txt_item_cash.setText("");
     }
 
     public ArrayList<ItemsPojo> ListItems(String Id) {
@@ -544,7 +634,7 @@ public class RecieveForm extends javax.swing.JFrame {
         ArrayList<ItemsPojo> data = ListItems(txt_table_search.getText());
         DefaultTableModel model = new DefaultTableModel();
         // public ItemsPojo(int item_id, String item_name, String item_type, String item_quantity, String item_quantity_in, Date item_updated_at)
-        model.setColumnIdentifiers(new Object[]{"ID", "NAME", "QUANTITY", "IN", "DATE"});
+        model.setColumnIdentifiers(new Object[]{"ID", "NAME", "QUANTITY", "UNIT", "DATE"});
         Object[] row = new Object[5];
         for (int i = 0; i < data.size(); i++) {
             row[0] = ((ItemsPojo) data.get(i)).getItem_id();
@@ -583,10 +673,14 @@ public class RecieveForm extends javax.swing.JFrame {
         txt_item_add = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
-        txt_item_cash = new javax.swing.JTextField();
+        txt_item_total_cash = new javax.swing.JTextField();
         jRadioButton_new_item = new javax.swing.JRadioButton();
         jRadioButton_existing_item = new javax.swing.JRadioButton();
         jButton3 = new javax.swing.JButton();
+        txt_item_cash = new javax.swing.JTextField();
+        jLabel11 = new javax.swing.JLabel();
+        txt_purchase_order_no = new javax.swing.JTextField();
+        jLabel12 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         table = new javax.swing.JTable();
         jPanel3 = new javax.swing.JPanel();
@@ -599,6 +693,17 @@ public class RecieveForm extends javax.swing.JFrame {
         jLabel7 = new javax.swing.JLabel();
         txt_total_cash = new javax.swing.JTextField();
         jLabel10 = new javax.swing.JLabel();
+        txt_from_address = new javax.swing.JTextField();
+        jLabel13 = new javax.swing.JLabel();
+        jLabel14 = new javax.swing.JLabel();
+        txt_received_by = new javax.swing.JTextField();
+        jLabel15 = new javax.swing.JLabel();
+        txt_designation = new javax.swing.JTextField();
+        txt_department = new javax.swing.JTextField();
+        jLabel16 = new javax.swing.JLabel();
+        jLabel17 = new javax.swing.JLabel();
+        txt_delivered_by = new javax.swing.JTextField();
+        jLabel18 = new javax.swing.JLabel();
         txt_table_search = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
@@ -648,11 +753,11 @@ public class RecieveForm extends javax.swing.JFrame {
         jLabel6.setText("ADD");
 
         jLabel8.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel8.setText("CASH");
+        jLabel8.setText("VALUE Kshs");
 
-        txt_item_cash.addKeyListener(new java.awt.event.KeyAdapter() {
+        txt_item_total_cash.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
-                txt_item_cashKeyReleased(evt);
+                txt_item_total_cashKeyReleased(evt);
             }
         });
 
@@ -667,6 +772,23 @@ public class RecieveForm extends javax.swing.JFrame {
             }
         });
 
+        txt_item_cash.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txt_item_cashActionPerformed(evt);
+            }
+        });
+        txt_item_cash.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txt_item_cashKeyReleased(evt);
+            }
+        });
+
+        jLabel11.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel11.setText("RATE Kshs");
+
+        jLabel12.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel12.setText("PURCHASE ORDER NO");
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -674,44 +796,50 @@ public class RecieveForm extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(txt_item_quantity)
-                            .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel6)
-                            .addComponent(txt_item_add))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 73, Short.MAX_VALUE)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txt_quantity_in)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel5)
-                                    .addComponent(jLabel8))
-                                .addGap(0, 0, Short.MAX_VALUE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
-                                .addComponent(txt_item_cash, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addContainerGap())
+                            .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(63, 63, 63)
+                        .addComponent(jLabel5)
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txt_item_name, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel2)
-                            .addComponent(jRadioButton_new_item))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel3)
-                            .addComponent(jRadioButton_existing_item)
-                            .addComponent(txt_item_id, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 11, Short.MAX_VALUE))
+                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(txt_purchase_order_no, javax.swing.GroupLayout.DEFAULT_SIZE, 145, Short.MAX_VALUE)
+                                .addComponent(txt_item_name)
+                                .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jRadioButton_new_item, javax.swing.GroupLayout.Alignment.LEADING))
+                            .addComponent(txt_item_add, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel3)
+                                .addComponent(jRadioButton_existing_item)
+                                .addComponent(txt_item_id, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel11)
+                                .addComponent(txt_item_cash, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(txt_quantity_in, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel8))
+                            .addComponent(txt_item_total_cash, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(42, 42, 42)
-                        .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 197, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addContainerGap()
+                        .addComponent(jLabel6))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel12))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(62, 62, 62)
+                        .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 197, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(0, 96, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jRadioButton_new_item)
                     .addComponent(jRadioButton_existing_item))
@@ -727,23 +855,32 @@ public class RecieveForm extends javax.swing.JFrame {
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(jLabel5))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(txt_item_quantity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txt_quantity_in, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(5, 5, 5)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel8)
-                            .addComponent(jLabel6)))
+                        .addComponent(jLabel6)
+                        .addGap(18, 18, 18)
+                        .addComponent(txt_item_add, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(30, 30, 30)
+                        .addComponent(jLabel11)
+                        .addGap(18, 18, 18)
+                        .addComponent(txt_item_cash, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jLabel12)
+                        .addGap(18, 18, 18)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(txt_item_add, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txt_item_cash, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
-                .addComponent(jButton3))
+                            .addComponent(txt_purchase_order_no, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txt_item_total_cash, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jLabel8))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jButton3)
+                .addGap(72, 72, 72))
         );
 
         table.setModel(new javax.swing.table.DefaultTableModel(
@@ -784,14 +921,27 @@ public class RecieveForm extends javax.swing.JFrame {
         });
 
         jLabel9.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel9.setText("RECIEPT NO");
+        jLabel9.setText("INVOICE NO");
 
         jLabel7.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel7.setText("FROM");
+        jLabel7.setText("FROM(NAME)");
 
         txt_total_cash.setEditable(false);
 
+        jLabel10.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel10.setText("TOTAL CASH");
+
+        jLabel13.setText("FROM(ADDRESS)");
+
+        jLabel14.setText("RECEIVED BY");
+
+        jLabel15.setText("DESIGNATION");
+
+        jLabel16.setText("DEPARTMENT");
+
+        jLabel17.setText("DELIVERED BY");
+
+        jLabel18.setText("RN");
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -799,59 +949,83 @@ public class RecieveForm extends javax.swing.JFrame {
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(txt_item_receipt_no, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(jPanel3Layout.createSequentialGroup()
+                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(txt_designation, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel3Layout.createSequentialGroup()
+                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(txt_received_by, javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel10, javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(txt_total_cash, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE))
+                            .addGap(28, 28, 28)
+                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(jLabel9)
-                                .addGap(109, 109, 109))
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addComponent(txt_total_cash)
-                                .addGap(28, 28, 28)))
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addComponent(jLabel7)
-                                .addGap(0, 0, Short.MAX_VALUE))
-                            .addComponent(txt_item_from)))
+                                .addComponent(txt_item_receipt_no, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(jLabel14)
+                        .addGap(108, 108, 108)
+                        .addComponent(jLabel15))
+                    .addComponent(jProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 318, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(33, 33, 33)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(txt_item_from)
+                    .addComponent(jLabel7)
+                    .addComponent(txt_department)
+                    .addComponent(jLabel16)
+                    .addComponent(jLabel18, javax.swing.GroupLayout.DEFAULT_SIZE, 145, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(txt_from_address)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(26, 26, 26)
-                                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jLabel10))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                            .addComponent(jLabel17)
+                            .addComponent(jLabel13))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(txt_delivered_by))
                 .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(92, 92, 92)
+                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(111, 111, 111))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel13, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel10)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txt_total_cash, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel9)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jLabel7)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txt_item_from, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txt_item_receipt_no, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jProgressBar1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel7)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txt_item_receipt_no, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txt_item_from, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txt_from_address, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txt_total_cash, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel14)
+                    .addComponent(jLabel15)
+                    .addComponent(jLabel16)
+                    .addComponent(jLabel17))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txt_received_by, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txt_designation, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txt_department, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txt_delivered_by, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel18))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jButton1)
                     .addComponent(jButton2))
-                .addContainerGap())
+                .addGap(30, 30, 30))
         );
 
         txt_table_search.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -874,11 +1048,11 @@ public class RecieveForm extends javax.swing.JFrame {
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 344, Short.MAX_VALUE)
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 156, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 365, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -886,37 +1060,39 @@ public class RecieveForm extends javax.swing.JFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(txt_table_search, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jLabel1)
-                        .addContainerGap())
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 758, Short.MAX_VALUE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel1))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 577, Short.MAX_VALUE))
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(16, 16, 16)
+                        .addGap(13, 13, 13)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(txt_table_search, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel1))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGap(18, 18, 18)
                         .addComponent(jScrollPane1))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
+                        .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGap(11, 11, 11))
         );
 
         jMenu1.setText("File");
@@ -933,7 +1109,7 @@ public class RecieveForm extends javax.swing.JFrame {
         jMenu2.setText("Operations");
         jMenu2.setMargin(new java.awt.Insets(0, 0, 0, 20));
 
-        jMenuItem1.setText("Give");
+        jMenuItem1.setText("Issue");
         jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem1ActionPerformed(evt);
@@ -969,11 +1145,13 @@ public class RecieveForm extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         pack();
@@ -1010,7 +1188,10 @@ public class RecieveForm extends javax.swing.JFrame {
                         rs.getString(Keys.KEY_TRANSACTION_QUANTITY),
                         rs.getString(Keys.KEY_TRANSACTION_QUANTITY_IN),
                         rs.getString(Keys.KEY_TRANSACTION_CASH),
-                        rs.getString(Keys.KEY_TRANSACTION_TYPE)
+                        rs.getString(Keys.KEY_TRANSACTION_TYPE),
+                        rs.getString(Keys.KEY_TRANSACTION_ITEM_CASH),
+                        rs.getString(Keys.KEY_TRANSACTION_PURCHASE_ORDER_NO)
+                        
                 );
 
                 itemsList.add(data);
@@ -1023,9 +1204,27 @@ public class RecieveForm extends javax.swing.JFrame {
         }
         return itemsList;
     }
+    public static String gnetName() {
+    JPasswordField jpf = new JPasswordField(24);
+    JLabel jl = new JLabel("Enter Your Password: ");
+    Box box = Box.createHorizontalBox();
+    box.add(jl);
+    box.add(jpf);
+   // box.getRootPane().setDefaultButton(JOptionPane.OK_CANCEL_OPTION);
+    int x = JOptionPane.showConfirmDialog(null, box, "Password Entry", JOptionPane.OK_CANCEL_OPTION,JOptionPane.DEFAULT_OPTION);
+
+        
+    
+    if (x == JOptionPane.OK_OPTION) {
+      return jpf.getText();
+    }
+    return null;
+  }
 
     private void runn() {
-        String password = JOptionPane.showInputDialog("Enter Your Password ");
+        String password = gnetName();
+        if(password!=null){
+                //JOptionPane.showInputDialog("Enter Your Password ");
         String user_name = methods.getUserNameByPassword(password);
         jButton2.setEnabled(false);
         if (!"null".equals(user_name)) {
@@ -1036,6 +1235,14 @@ public class RecieveForm extends javax.swing.JFrame {
                     String rNo = produce();
                     String from = txt_item_from.getText();
                     String reciept_in = txt_item_receipt_no.getText();
+                    
+                    String fromAddress=txt_from_address.getText();
+                    String receivedBy=txt_received_by.getText();
+                    String designation=txt_designation.getText();
+                    String department=txt_department.getText();
+                    String deliveredBy=txt_delivered_by.getText();
+                    
+                    
                     String totalCash = txt_total_cash.getText();
                     progressBarTrue();
                     for (int a = 0; a < items.size(); a++) {
@@ -1045,20 +1252,32 @@ public class RecieveForm extends javax.swing.JFrame {
                         String item_quantity = items.get(a).getItem_new_quantity();
                         String item_quantity_in = items.get(a).getTransaction_quantity_in();
                         String item_cash = items.get(a).getTransaction_cash();
+                        String item_i_cash=items.get(a).getTransaction_item_cash();
+                        String item_purchase_order_no=items.get(a).getTransaction_purchase_order_no();
                         int item_id = items.get(a).getItem_id();
                         String transaction_quantity = items.get(a).getTransaction_quantity();
 
                         if (item_type.equals(Keys.KEY_TRANSACTION_RECIEVE_NEW)) {
 //       
 
-                            insertNewItem(item_name, item_type, item_quantity, transaction_quantity, item_quantity_in, item_cash, item_id, user_name, rNo, from, reciept_in);
+insertNewItem(item_name, item_type, item_quantity, transaction_quantity, item_quantity_in, item_cash, item_id, user_name, rNo, from, reciept_in,
+        item_i_cash,item_purchase_order_no,fromAddress,receivedBy,designation,department,deliveredBy);
                         } else if (item_type.equals(Keys.KEY_TRANSACTION_RECEIVE_EXISTING)) {
-
-                            updateExistingItem(item_name, item_type, item_quantity, transaction_quantity, item_quantity_in, item_cash, item_id, user_name, rNo, from, reciept_in);
+updateExistingItem(item_name, item_type, item_quantity, transaction_quantity, item_quantity_in, item_cash, item_id, user_name, rNo, from, reciept_in,
+        item_i_cash,item_purchase_order_no,fromAddress,receivedBy,designation,department,deliveredBy);
                         }
 
                     }
-                    Printing printing = new Printing(rNo, user_name, items, String.valueOf(totalC), from);
+                    String [] otherDetails=new String [7];
+                    otherDetails[0]=from;
+                    otherDetails[1]=fromAddress;
+                    otherDetails[2]=receivedBy;
+                    otherDetails[3]=designation;
+                    otherDetails[4]=department;
+                    otherDetails[5]=deliveredBy;
+                    otherDetails[6]=reciept_in;
+                    
+                    Printing printing = new Printing(rNo, user_name, items, totalCash, otherDetails);
                     //Printing(String transactionReceiptNo, String officer, ArrayList<CartPojo> items,String totalCash,String from)
 
                     jButton2.setEnabled(true);
@@ -1076,7 +1295,10 @@ public class RecieveForm extends javax.swing.JFrame {
                     + "\n"
                     + "FIND ASSISTANCE FROM SYSTEM ADMINISTRATOR");
         }
-
+        }
+        else{
+            JOptionPane.showMessageDialog(null, "You have to select OK");
+        }
     }
 
     public void threadExecute() {
@@ -1138,7 +1360,15 @@ public class RecieveForm extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem5ActionPerformed
     final String uline = "__________________________________________________________________________________";
     final String dline = "----------------------------------------------------------------------------------";
-
+//    public static final String KEY_TRANSACTION_ITEM_CASH="transaction_item_cash";
+//    public static final String KEY_TRANSACTION_PURCHASE_ORDER_NO="transaction_purchase_order_no";
+//    public static final String KEY_TRANSACTION_FROM_ADDRESS="transaction_from_address";
+//    public static final String KEY_TRANSACTION_RECEIVED_BY="transaction_received_by";
+//    public static final String KEY_TRANSACTION_RECEIVER_DESIGNATION="transaction_receiver_designation";
+//    public static final String KEY_TRANSACTION_DEPARTMENT="transaction_department";
+//    public static final String KEY_TRANSACTION_ITEM_DEIVERED_BY="transaction_delivered_by";
+//    
+    
     public void insertToCart(int item_id ,String quantity_in) {
         String query = "INSERT INTO " + Keys.KEY_RECEIVED_CART_TABLE + "("
                 + "" + Keys.KEY_ITEM_ID + ", "
@@ -1147,25 +1377,31 @@ public class RecieveForm extends javax.swing.JFrame {
                 + "" + Keys.KEY_TRANSACTION_QUANTITY + ","
                 + "" + Keys.KEY_TRANSACTION_QUANTITY_IN + ","
                 + "" + Keys.KEY_TRANSACTION_CASH + ","
-                + Keys.KEY_TRANSACTION_TYPE + ")"
+                + Keys.KEY_TRANSACTION_TYPE + ","
+                
+                + Keys.KEY_TRANSACTION_ITEM_CASH + ","
+                + Keys.KEY_TRANSACTION_PURCHASE_ORDER_NO + ")"
                 + " VALUES ("
                 + "'" + item_id + "',"
                 + "'" + this.txt_item_name.getText() + "',"
                 + "'" + this.txt_item_quantity.getText() + "',"
                 + "'" + quantity_in + "',"
                 + "'" + txt_quantity_in.getText() + "',"
+                + "'" + txt_item_total_cash.getText() + "',"
+                + "'" + transactionType + "',"
+                
                 + "'" + txt_item_cash.getText() + "',"
-                + "'" + transactionType + "')";
+                + "'" + txt_purchase_order_no.getText() + "')";
 
         if (methods.executeSQlQueryN(query) == 1) {
             if (newItem) {
                 txt_cart_area.append("" + this.txt_item_name.getText() + " \n                           " + this.txt_item_quantity.getText() + ""
-                        + "                            " + item_id + "  \n");
+                        + "                            " + item_id + "          "+ txt_item_total_cash.getText()+" \n");
 
                 clearTop();
             } else {
                 txt_cart_area.append("" + this.txt_item_name.getText() + " \n                           " + this.txt_item_add.getText() + ""
-                        + "                            " + item_id + "  \n");
+                        + "                            " + item_id + "          "+ txt_item_total_cash.getText()+" \n");
 
                 clearTop();
             }
@@ -1177,10 +1413,10 @@ public class RecieveForm extends javax.swing.JFrame {
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         if (checkEmpty()) {
             try {
-                if (txt_item_cash.getText().isEmpty()) {
+                if (txt_item_total_cash.getText().isEmpty()) {
                     JOptionPane.showMessageDialog(null, "Enter Cash");
                 } else {
-                    totalC = totalC + Double.valueOf(txt_item_cash.getText());
+                    totalC = totalC + Double.valueOf(txt_item_total_cash.getText());
                     txt_total_cash.setText(String.valueOf(totalC));
                 }
             } catch (Exception a) {
@@ -1197,15 +1433,49 @@ public class RecieveForm extends javax.swing.JFrame {
 
     }//GEN-LAST:event_jButton3ActionPerformed
 
+    private void txt_item_total_cashKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_item_total_cashKeyReleased
+        try {
+             double q=0;
+            int n = Integer.valueOf(txt_item_total_cash.getText());
+            if (newItem) {
+             q=Integer.valueOf(txt_item_quantity.getText());
+            }
+            else{
+                q=Integer.valueOf(txt_item_add.getText()); 
+            }
+            
+            txt_item_cash.setText(String.valueOf(n/q));
+        } catch (Exception nm) {
+            //JOptionPane.showMessageDialog(null, "Numerical Values Only..If Null Use 0");
+
+        }
+    }//GEN-LAST:event_txt_item_total_cashKeyReleased
+
     private void txt_item_cashKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_item_cashKeyReleased
         try {
             int n = Integer.valueOf(txt_item_cash.getText());
+            double q=0;
+            if (newItem) {
+             q=Integer.valueOf(txt_item_quantity.getText());
+            }
+            else{
+                q=Integer.valueOf(txt_item_add.getText()); 
+            }
+            
+            
+            txt_item_total_cash.setText(String.valueOf(n*q));
         } catch (Exception nm) {
-            txt_item_cash.setText("0");
-            JOptionPane.showMessageDialog(null, "Numerical Values Only..If Null Use 0");
+           
+            
+           // txt_item_total_cash.setText("0");
+           // JOptionPane.showMessageDialog(null, "Numerical Values Only..If Null Use 0");
 
         }
     }//GEN-LAST:event_txt_item_cashKeyReleased
+
+    private void txt_item_cashActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_item_cashActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txt_item_cashActionPerformed
     private void addQuantity() {
 
         try {
@@ -1246,10 +1516,8 @@ public class RecieveForm extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new RecieveForm().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new RecieveForm().setVisible(true);
         });
     }
 
@@ -1259,6 +1527,14 @@ public class RecieveForm extends javax.swing.JFrame {
     private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel16;
+    private javax.swing.JLabel jLabel17;
+    private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -1287,6 +1563,10 @@ public class RecieveForm extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable table;
     private javax.swing.JTextArea txt_cart_area;
+    private javax.swing.JTextField txt_delivered_by;
+    private javax.swing.JTextField txt_department;
+    private javax.swing.JTextField txt_designation;
+    private javax.swing.JTextField txt_from_address;
     private javax.swing.JTextField txt_item_add;
     private javax.swing.JTextField txt_item_cash;
     private javax.swing.JTextField txt_item_from;
@@ -1294,7 +1574,10 @@ public class RecieveForm extends javax.swing.JFrame {
     private javax.swing.JTextField txt_item_name;
     private javax.swing.JTextField txt_item_quantity;
     private javax.swing.JTextField txt_item_receipt_no;
+    private javax.swing.JTextField txt_item_total_cash;
+    private javax.swing.JTextField txt_purchase_order_no;
     private javax.swing.JTextField txt_quantity_in;
+    private javax.swing.JTextField txt_received_by;
     private javax.swing.JTextField txt_table_search;
     private javax.swing.JTextField txt_total_cash;
     // End of variables declaration//GEN-END:variables

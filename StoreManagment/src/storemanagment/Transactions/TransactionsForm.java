@@ -8,6 +8,8 @@ package storemanagment.Transactions;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -15,14 +17,19 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.Box;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import storemanagment.CartPojo;
 import storemanagment.Give.GiveForm;
 import storemanagment.ItemsPojo;
 import storemanagment.Keys;
+import storemanagment.Main;
 import storemanagment.Methods;
 import storemanagment.Printing;
 import storemanagment.Recieve.RecieveForm;
@@ -113,7 +120,8 @@ Methods methods=new Methods();
                         rs.getString(Keys.KEY_TRANSACTION_RECEIPT_RECIEVED),
                         rs.getString(Keys.KEY_TRANSACTION_RECEIPT_GIVEN),
                         rs.getString(Keys.KEY_TRANSACTION_OFFICER_INCHARGE),
-                        rs.getString(Keys.KEY_TRANSACTION_TIME)
+                        rs.getString(Keys.KEY_TRANSACTION_TIME),
+                        rs.getString(Keys.KEY_TRANSACTION_ITEM_CASH)
                 );
 
                 transactionsList.add(data);
@@ -146,6 +154,7 @@ Methods methods=new Methods();
                     + "AND " + Keys.KEY_ITEM_TYPE + " = '" + this.storeType + "' "
                     + "AND "+Keys.KEY_TRANSACTION_TIME+">= '"+FDATE+"' "
                     + "AND "+Keys.KEY_TRANSACTION_TIME+"<= '"+TDATE+"' "
+                    
                     + "ORDER BY "+Keys.KEY_TRANSACTION_ID+" DESC";
             ResultSet rs = st.executeQuery(searchQuery);
             while (rs.next()) {
@@ -170,7 +179,9 @@ Methods methods=new Methods();
                         rs.getString(Keys.KEY_TRANSACTION_RECEIPT_RECIEVED),
                         rs.getString(Keys.KEY_TRANSACTION_RECEIPT_GIVEN),
                         rs.getString(Keys.KEY_TRANSACTION_OFFICER_INCHARGE),
-                        rs.getString(Keys.KEY_TRANSACTION_TIME)
+                        rs.getString(Keys.KEY_TRANSACTION_TIME),
+                        rs.getString(Keys.KEY_TRANSACTION_ITEM_CASH)
+                        
                 );
 
                 transactionsList.add(data);
@@ -209,8 +220,8 @@ Methods methods=new Methods();
 //TransactionsPojo(int transaction_id, int item_id, String item_name, String item_type, String transaction_quantity,
 //String transaction_quantity_in, String transaction_type, String transaction_to, String transaction_from, String transaction_cash, 
 //String transaction_receipt_no_in, String transaction_receipt_no_out, String transaction_officer_incharge, String transaction_time_string)
-        model.setColumnIdentifiers(new Object[]{"DATE", "RECEIPT", "ID", "NAME","TYPE", "QUANTITY","IN","TO/FROM","CASH","OFFICER","ITEM_NO"});
-        Object[] row = new Object[11];
+        model.setColumnIdentifiers(new Object[]{"DATE", "RECEIPT", "ID", "NAME","TYPE", "QUANTITY","UNIT","TO/FROM","I.CASH","T.CASH","OFFICER","ITEM_NO"});
+        Object[] row = new Object[12];
         for (int i = 0; i < data.size(); i++) {
             row[0] = ((TransactionsPojo) data.get(i)).getTransaction_time_string();
             
@@ -231,10 +242,10 @@ Methods methods=new Methods();
              
             row[5] = ((TransactionsPojo) data.get(i)).getTransaction_quantity();
             row[6] = ((TransactionsPojo) data.get(i)).getTransaction_quantity_in();
-            
-            row[8] = ((TransactionsPojo) data.get(i)).getTransaction_cash();
-            row[9] = ((TransactionsPojo) data.get(i)).getTransaction_officer_incharge();
-            row[10] = ((TransactionsPojo) data.get(i)).getItem_id();
+            row[8] = ((TransactionsPojo) data.get(i)).getTransaction_item_cash();
+            row[9] = ((TransactionsPojo) data.get(i)).getTransaction_cash();
+            row[10] = ((TransactionsPojo) data.get(i)).getTransaction_officer_incharge();
+            row[11] = ((TransactionsPojo) data.get(i)).getItem_id();
            
 
             model.addRow(row);
@@ -471,6 +482,8 @@ Methods methods=new Methods();
         jMenu2 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItem2 = new javax.swing.JMenuItem();
+        jMenuItem6 = new javax.swing.JMenuItem();
+        jMenuItem7 = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
         jMenuItem5 = new javax.swing.JMenuItem();
 
@@ -517,7 +530,7 @@ Methods methods=new Methods();
         txt_transaction_quantity.setEditable(false);
 
         jLabel11.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel11.setText("IN");
+        jLabel11.setText("UNIT");
 
         txt_transaction_quantity_in.setEditable(false);
 
@@ -812,13 +825,29 @@ Methods methods=new Methods();
         });
         jMenu2.add(jMenuItem1);
 
-        jMenuItem2.setText("Give");
+        jMenuItem2.setText("Issue");
         jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem2ActionPerformed(evt);
             }
         });
         jMenu2.add(jMenuItem2);
+
+        jMenuItem6.setText("Stock Taking");
+        jMenuItem6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem6ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem6);
+
+        jMenuItem7.setText("Inventory Printing");
+        jMenuItem7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem7ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem7);
 
         jMenuBar1.add(jMenu2);
 
@@ -890,7 +919,9 @@ public void reProduceReceipt(){
         Printing print = new Printing(rNo, officer, items);
     }
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        String password = JOptionPane.showInputDialog("Enter Your Password ");
+        String password = gnetName();
+        if(password!=null){
+               // JOptionPane.showInputDialog("Enter Your Password ");
          String user_name = methods.getUserNameByPassword(password);
         if (!"null".equals(user_name)) {
             if(check()==1){
@@ -902,6 +933,10 @@ public void reProduceReceipt(){
                     + "\n"
                     + "FIND ASSISTANCE FROM SYSTEM ADMINISTRATOR");
         }
+        }
+         else{
+            JOptionPane.showMessageDialog(null, "You have to select OK");
+        }
     }//GEN-LAST:event_jButton3ActionPerformed
 int check(){
     int status=1;
@@ -910,8 +945,29 @@ int check(){
     }
     return status;
 }
+public static String gnetName() {
+    JPasswordField jpf = new JPasswordField(24);
+    JLabel jl = new JLabel("Enter Your Password: ");
+    Box box = Box.createHorizontalBox();
+    box.add(jl);
+    box.add(jpf);
+   // box.getRootPane().setDefaultButton(JOptionPane.OK_CANCEL_OPTION);
+    int x = JOptionPane.showConfirmDialog(null, box, "Password Entry", JOptionPane.OK_CANCEL_OPTION,JOptionPane.DEFAULT_OPTION);
+
+        
+    
+    if (x == JOptionPane.OK_OPTION) {
+      return jpf.getText();
+    }
+    return null;
+  }
+
+
+
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        String password = JOptionPane.showInputDialog("Enter Your Password ");
+        String password = gnetName();
+        if(password!=null){
+                //JOptionPane.showInputDialog("Enter Your Password ");
          String user_name = methods.getUserNameByPassword(password);
 
         if (!"null".equals(user_name)) {
@@ -923,6 +979,10 @@ int check(){
              JOptionPane.showMessageDialog(null, "UN-REGISTERD PASSWORD..."
                     + "\n"
                     + "FIND ASSISTANCE FROM SYSTEM ADMINISTRATOR");
+        }
+        }
+        else{
+            JOptionPane.showMessageDialog(null, "You have to select OK");
         }
     }//GEN-LAST:event_jButton2ActionPerformed
 
@@ -975,7 +1035,7 @@ private String getRevertStatus(String transactionId){
         TableModel model = this.table.getModel();
 
        // "DATE", "RECEIPT", "ID", "NAME","TYPE", "QUANTITY","IN","OFFICER","ITEM_NO"
-        this.txt_item_id.setText(model.getValueAt(i, 10).toString());
+        this.txt_item_id.setText(model.getValueAt(i, 11).toString());
 
         this.txt_item_name.setText(model.getValueAt(i, 3).toString());
         
@@ -986,7 +1046,7 @@ private String getRevertStatus(String transactionId){
         
         this.txt_transaction_quantity_in.setText(model.getValueAt(i, 6).toString());
         
-        this.txt_officer_in_charge.setText(model.getValueAt(i, 9).toString());
+        this.txt_officer_in_charge.setText(model.getValueAt(i, 10).toString());
         
         this.txt_transaction_date.setText(model.getValueAt(i, 0).toString());
         
@@ -996,7 +1056,7 @@ private String getRevertStatus(String transactionId){
         
         this.txt_transaction_to_from.setText(model.getValueAt(i, 7).toString());
         
-        this.txt_transaction_cash.setText(model.getValueAt(i, 8).toString());
+        this.txt_transaction_cash.setText(model.getValueAt(i, 9).toString());
         
         
         if("1".equals(getRevertStatus(txt_transaction_id.getText()))){
@@ -1055,6 +1115,41 @@ else{
 }
        
     }//GEN-LAST:event_jButton6ActionPerformed
+public ArrayList<ItemsPojo> ListItems(String Id) {
+        ArrayList<ItemsPojo> itemsList = new ArrayList();
+        try {
+
+            Connection con = methods.getConnection();
+
+            Statement st = con.createStatement();
+
+            String searchQuery = "SELECT * FROM " + Keys.KEY_ITEMS_TABLE + ""
+                    + " WHERE CONCAT(" + Keys.KEY_ITEM_ID + "," + Keys.KEY_ITEM_NAME + ") LIKE '%" + Id + "%'  "
+                    + "AND " + Keys.KEY_ITEM_TYPE + " = '" + this.storeType + "'";
+            ResultSet rs = st.executeQuery(searchQuery);
+            while (rs.next()) {
+
+                ItemsPojo data = new ItemsPojo(
+                        rs.getInt(Keys.KEY_ITEM_ID), rs.getString(Keys.KEY_ITEM_NAME), rs.getString(Keys.KEY_ITEM_TYPE), rs.getString(Keys.KEY_ITEM_QUANTITY), rs.getString(Keys.KEY_ITEM_QUANTITY_IN), rs.getString(Keys.KEY_ITEM_UPDATED_AT)
+                );
+
+                itemsList.add(data);
+            }
+            st.close();
+            rs.close();
+            con.close();
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+        return itemsList;
+    }
+    private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed
+        Printing printing=new Printing(storeType, Main.loggedInName, ListItems(""),"IN");
+    }//GEN-LAST:event_jMenuItem7ActionPerformed
+
+    private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
+        Printing printing=new Printing(storeType, Main.loggedInName, ListItems(""),10);
+    }//GEN-LAST:event_jMenuItem6ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1121,6 +1216,8 @@ else{
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
+    private javax.swing.JMenuItem jMenuItem6;
+    private javax.swing.JMenuItem jMenuItem7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;

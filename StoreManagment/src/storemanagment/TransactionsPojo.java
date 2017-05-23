@@ -28,6 +28,29 @@ public class TransactionsPojo {
   private String transaction_officer_incharge;
   private Date transaction_time;
   private String transaction_time_string;
+  private String transaction_item_cash;
+    public TransactionsPojo(int transaction_id, int item_id, String item_name,
+            String item_type,int transaction_revert_status, String transaction_quantity, 
+            String transaction_quantity_in, String transaction_type, String transaction_to, 
+            String transaction_from, String transaction_cash, String transaction_receipt_no_in, 
+            String transaction_receipt_no_out, String transaction_officer_incharge, String transaction_time_string,String transaction_item_cash) {
+        this.transaction_id = transaction_id;
+        this.item_id = item_id;
+        this.item_name = item_name;
+        this.item_type = item_type;
+        this.transaction_revert_status=transaction_revert_status;
+        this.transaction_quantity = transaction_quantity;
+        this.transaction_quantity_in = transaction_quantity_in;
+        this.transaction_type = transaction_type;
+        this.transaction_to = transaction_to;
+        this.transaction_from = transaction_from;
+        this.transaction_cash = transaction_cash;
+        this.transaction_receipt_no_in = transaction_receipt_no_in;
+        this.transaction_receipt_no_out = transaction_receipt_no_out;
+        this.transaction_officer_incharge = transaction_officer_incharge;
+        this.transaction_time_string = transaction_time_string;
+        this.transaction_item_cash=transaction_item_cash;
+    }
 
     public TransactionsPojo(int transaction_id, int item_id, String item_name, String item_type,int transaction_revert_status, String transaction_quantity, String transaction_quantity_in, String transaction_type, String transaction_to, String transaction_from, String transaction_cash, String transaction_receipt_no_in, String transaction_receipt_no_out, String transaction_officer_incharge, String transaction_time_string) {
         this.transaction_id = transaction_id;
@@ -45,6 +68,14 @@ public class TransactionsPojo {
         this.transaction_receipt_no_out = transaction_receipt_no_out;
         this.transaction_officer_incharge = transaction_officer_incharge;
         this.transaction_time_string = transaction_time_string;
+    }
+
+    public String getTransaction_item_cash() {
+        return transaction_item_cash;
+    }
+
+    public void setTransaction_item_cash(String transaction_item_cash) {
+        this.transaction_item_cash = transaction_item_cash;
     }
 
     public int getTransaction_revert_status() {

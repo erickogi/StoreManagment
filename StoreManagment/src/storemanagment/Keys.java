@@ -44,6 +44,49 @@ public class Keys {
     public static final String KEY_TRANSACTION_TIME="transaction_time";
     
     
+    public static final String KEY_TRANSACTION_ITEM_CASH="transaction_item_cash";
+    public static final String KEY_TRANSACTION_PURCHASE_ORDER_NO="transaction_purchase_order_no";
+    public static final String KEY_TRANSACTION_FROM_ADDRESS="transaction_from_address";
+    public static final String KEY_TRANSACTION_RECEIVED_BY="transaction_received_by";
+    public static final String KEY_TRANSACTION_RECEIVER_DESIGNATION="transaction_receiver_designation";
+    public static final String KEY_TRANSACTION_DEPARTMENT="transaction_department";
+    public static final String KEY_TRANSACTION_ITEM_DEIVERED_BY="transaction_delivered_by";
+    
+    
+    
+            
+            
+            
+            
+//             `transaction_item_cash` varchar(70) DEFAULT NULL,
+//  `transaction_purchase_order_no` varchar(70) DEFAULT NULL,
+//  
+//  
+//  
+//  
+//  `transaction_from_address` varchar(200) DEFAULT NULL,
+//  
+//  `transaction_received_by` varchar(200) DEFAULT NULL,
+//  
+//  `transaction_receiver_designation` varchar(200) DEFAULT NULL,
+//  
+//  `transaction_department` varchar(200) DEFAULT NULL,
+//  
+//  `transaction_delivered_by` varchar(200) DEFAULT NULL,
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
     //RECEIPTS DB
     public static final String KEY_RECEIPT_TABLE="transactions_reciepts";
    

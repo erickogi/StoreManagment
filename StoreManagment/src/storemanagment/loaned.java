@@ -18,7 +18,10 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.Box;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import storemanagment.Give.GiveForm;
@@ -481,8 +484,26 @@ void clear(){
         this.txt_loan_id.setText("");
         
 }
+public static String gnetName() {
+    JPasswordField jpf = new JPasswordField(24);
+    JLabel jl = new JLabel("Enter Your Password: ");
+    Box box = Box.createHorizontalBox();
+    box.add(jl);
+    box.add(jpf);
+   // box.getRootPane().setDefaultButton(JOptionPane.OK_CANCEL_OPTION);
+    int x = JOptionPane.showConfirmDialog(null, box, "Password Entry", JOptionPane.OK_CANCEL_OPTION,JOptionPane.DEFAULT_OPTION);
+
+        
+    
+    if (x == JOptionPane.OK_OPTION) {
+      return jpf.getText();
+    }
+    return null;
+  }
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-               String password = JOptionPane.showInputDialog("Enter Your Password ");
+               String password = gnetName();
+                       //JOptionPane.showInputDialog("Enter Your Password ");
+                       if(password!=null){
         String user_name = methods.getUserNameByPassword(password);
 
         if (!"null".equals(user_name)) {
@@ -498,6 +519,10 @@ void clear(){
                     + "\n"
                     + "FIND ASSISTANCE FROM SYSTEM ADMINISTRATOR");
         }
+                       }
+                       else{
+                           JOptionPane.showMessageDialog(null, "You have to select OK");
+                       }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableMouseClicked
