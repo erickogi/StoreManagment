@@ -98,7 +98,7 @@ public class Methods {
     }
 
     public String setTitle() {
-        String title = "Store Managment System   Mosongoiri Girls -TT1.0";
+        String title = "Store Managment System  ";
 
         return title;
     }

@@ -36,8 +36,8 @@ private final Date date;
      */
     @Override
     public void onStartPage(PdfWriter writer, Document document) {
-        ColumnText.showTextAligned(writer.getDirectContent(), Element.ALIGN_CENTER, new Phrase("     R.NO :"+receiptNO), 30, 800, 0);
-       ColumnText.showTextAligned(writer.getDirectContent(), Element.ALIGN_CENTER, new Phrase(""+date), 550, 800, 0);
+        ColumnText.showTextAligned(writer.getDirectContent(), Element.ALIGN_CENTER, new Phrase("     R.NO :"+receiptNO+"\n\n"), 30, 800, 0);
+       ColumnText.showTextAligned(writer.getDirectContent(), Element.ALIGN_CENTER, new Phrase(""+date+"\n\n"), 550, 800, 0);
     }
 
     /**

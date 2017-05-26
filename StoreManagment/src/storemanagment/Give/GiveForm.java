@@ -58,7 +58,7 @@ public class GiveForm extends javax.swing.JFrame {
 
         initComponents();
         
-        this.setTitle(storeType + " -Give Form");
+        this.setTitle(storeType + " -Issue Form");
         setTilteImage();
         findItems();
         setCart();
